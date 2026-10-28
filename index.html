@@ -421,6 +421,8 @@ button.apill:hover,.asgbtn:hover{color:var(--ink);border-color:var(--ink)}
 .authhint code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:12px}
 .invcode{display:inline-block;margin-top:8px;background:var(--soft);padding:5px 10px;border-radius:8px;font-size:15px;letter-spacing:.06em;user-select:all}
 body.cloudmode .who label,body.cloudmode .demo{display:none}
+body.notlead .kact,body.notlead form[data-form=addGoal],body.notlead form[data-form=addKr],body.notlead .ghead .grip,body.notlead .kr .grip,body.notlead .ghead .pencil,body.notlead .ghead .trashbtn{display:none!important}
+body.notlead .qsel{pointer-events:none;appearance:none;-webkit-appearance:none;border-color:transparent;background:transparent}
 .saveview{opacity:.6;white-space:nowrap}
 .saveview:hover,.saveview.on{opacity:1}
 </style>
@@ -676,7 +678,9 @@ function seed(){
 const user = id => S.users.find(u => u.id === id);
 const me = () => user(S.me);
 const isLead = () => me().role === 'Team lead';
-const cat = id => S.categories.find(c => c.id === id);
+const leadOnly = () => { if (isLead()) return false; toast('Only team leads can change goals and key results.'); return true; };
+const GOAL_SHARED = ['id', 'year', 'title', 'archived', 'deleted', 'ord'], KR_SHARED = ['id', 'goalId', 'title', 'quarter', 'deleted', 'ord'];
+const cat = id => S.categories.find(c => c.id === id) || (S.otherCats || []).find(c => c.id === id);
 const activeCats = () => S.categories.filter(c => !c.archived);
 const kr = id => S.krs.find(k => k.id === id);
 const goal = id => S.goals.find(g => g.id === id);
@@ -780,7 +784,7 @@ const missedTasks = u => liveTasks().filter(t => t.owner === u && !t.done && !in
 function sendToReview(krIds){
   let n = 0;
   liveTasks().forEach(function(t){
-    if (!t.krId || krIds.indexOf(t.krId) < 0) return;
+    if (t.owner !== S.me || !t.krId || krIds.indexOf(t.krId) < 0) return;
     t.krId = null; t.needReview = true; n++;
     if (t.done) { t.done = false; t.doneAt = null; t.note = ''; if (t.status === 'Done') t.status = 'Not started'; }
   });
@@ -1429,11 +1433,23 @@ function applyTheme(){
   const A = {gray: ['#6E6E6E', '#9A9A9A'], blue: ['#2F5BEA', '#6F8CFF'], green: ['#1F8A5B', '#3FBF86'], amber: ['#C77B00', '#E8A33D'], violet: ['#6B4FD8', '#9A86F2'], red: ['#C23B3B', '#EE6B6B']};
   r.style.setProperty('--accent', (A[S.accent] || A.gray)[dark ? 1 : 0]);
 }
+function fixOrphans(){
+  const gone = {}; let n = 0;
+  S.tasks.forEach(function(t){
+    if (t.owner !== S.me || !t.krId || t.deleted) return;
+    const k = kr(t.krId); if (k && !k.deleted && !(goal(k.goalId) || {deleted: 1}).deleted) return;
+    t.krId = null; t.needReview = true; n++;
+    if (t.done) { t.done = false; t.doneAt = null; t.note = ''; if (t.status === 'Done') t.status = 'Not started'; }
+  });
+  return n;
+}
 function render(){
   closePop();
+  if (S.me && fixOrphans()) save();
   if (S.view === 'review' && !reviewTasks(S.me).length && !incomingAsg(S.me).length) S.view = 'today';
   const act = document.activeElement && document.activeElement.id;
   $('#tabs').innerHTML = tabsList().map(t => '<button class="tab' + (t[2] ? ' ' + t[2] : '') + '" data-act="nav" data-view="' + t[0] + '"' + (S.view === t[0] ? ' aria-current="page"' : '') + '>' + t[1] + '</button>').join('');
+  document.body.classList.toggle('notlead', !!me() && !isLead());
   if (CLOUD && me()) $('#whoami').textContent = me().name + ' (' + me().role + ')';
   const w = $('#who');
   w.innerHTML = S.users.map(u => '<option value="' + u.id + '"' + (u.id === S.me ? ' selected' : '') + '>' + esc(u.name) + ' (' + esc(u.role) + ')</option>').join('');
@@ -1623,7 +1639,7 @@ function importCard(){
   const ty = ui.impType || 'tasks';
   return '<section class="card side"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Import from Excel or CSV</h2><span class="chip">Only you</span></div>' +
     '<p class="muted" style="margin:0 0 10px">Upload a sheet and match its columns. Nothing leaves this browser. Todoist CSV exports work too.</p>' +
-    '<div class="row"><label class="fld">What is in the file<select id="imp-type" data-chg="impType"><option value="tasks"' + (ty === 'tasks' ? ' selected' : '') + '>Tasks</option><option value="goals"' + (ty === 'goals' ? ' selected' : '') + '>Goals and key results</option></select></label>' +
+    '<div class="row"><label class="fld">What is in the file<select id="imp-type" data-chg="impType"><option value="tasks"' + (ty === 'tasks' ? ' selected' : '') + '>Tasks</option>' + (isLead() ? '<option value="goals"' + (ty === 'goals' ? ' selected' : '') + '>Goals and key results</option>' : '') + '</select></label>' +
     '<label class="fld">File (.xlsx, .xls, .csv)<input type="file" id="imp-file" accept=".xlsx,.xls,.csv,.txt" data-chg="impFile"></label></div>' +
     '<details style="margin-top:10px"><summary class="muted" style="cursor:pointer">Paste text instead</summary><textarea id="imp-text" rows="4" style="margin-top:8px" placeholder="Header row first, then one row per task"></textarea>' +
     '<div class="row" style="margin-top:6px"><button class="btn small" data-act="impPaste">Read pasted text</button><button class="btn small quiet" data-act="impSample">Fill with a sample</button></div></details>' +
@@ -1660,6 +1676,7 @@ Object.assign(acts, {
   impGo: function(){
     const m = ui.imp; if (!m) return;
     const items = impBuild(m); if (!items.length) return;
+    if (m.type === 'goals' && leadOnly()) return;
     if (m.type !== 'goals' && items.some(i => !i.krId)) { toast('Choose a key result for the tasks first.'); return; }
     if (m.type === 'goals') {
       const year = curYear(); let nk = 0;
@@ -2125,11 +2142,13 @@ Object.assign(acts, {
     $('#modal').classList.add('center');
   },
   renameKr: function(b){
+    if (leadOnly()) return;
     const k = kr(b.dataset.id); if (!k) return;
     openModal('<h2>Rename key result</h2><form data-form="renameKr" data-id="' + k.id + '"><label class="fld">Title<input id="rk-title" value="' + esc(k.title) + '" maxlength="160"></label><div class="actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit">Save</button></div></form>');
     $('#modal').classList.add('center');
   },
   delKr: function(b){
+    if (leadOnly()) return;
     const k = kr(b.dataset.id); if (!k) return;
     const n = liveTasks().filter(t => t.krId === k.id).length;
     openModal('<h2>Delete this key result?</h2><p style="margin:0 0 6px"><b>' + esc(k.title) + '</b> will be moved to trash.</p>' +
@@ -2138,12 +2157,14 @@ Object.assign(acts, {
     $('#modal').classList.add('center');
   },
   delKrOk: function(b){
+    if (leadOnly()) return;
     const k = kr(b.dataset.id); if (!k) { closeModal(); return; }
     const n = sendToReview([k.id]);
     k.deleted = Date.now(); logChange('kr', k.id, 'deleted', '', 'moved to trash', k.title); save(); closeModal();
     toast('Key result moved to trash.' + (n ? ' ' + n + (n === 1 ? ' task needs' : ' tasks need') + ' a new goal.' : '')); render();
   },
   delGoal: function(b){
+    if (leadOnly()) return;
     const g = goal(b.dataset.id); if (!g) return;
     const ids = S.krs.filter(k => k.goalId === g.id && !k.deleted).map(k => k.id);
     const n = liveTasks().filter(t => ids.includes(t.krId)).length;
@@ -2164,6 +2185,7 @@ Object.assign(acts, {
     save(); closeModal(); toast(list.length + (list.length === 1 ? ' task' : ' tasks') + ' moved to trash.'); render();
   },
   delGoalOk: function(b){
+    if (leadOnly()) return;
     const g = goal(b.dataset.id); if (!g) { closeModal(); return; }
     const ids = S.krs.filter(k => k.goalId === g.id && !k.deleted).map(k => k.id);
     const n = sendToReview(ids);
@@ -2171,6 +2193,7 @@ Object.assign(acts, {
     toast('Goal moved to trash.' + (n ? ' ' + n + (n === 1 ? ' task needs' : ' tasks need') + ' a new goal.' : '')); render();
   },
   renameGoal: function(b){
+    if (leadOnly()) return;
     const g = goal(b.dataset.id); if (!g) return;
     openModal('<h2>Rename goal</h2><form data-form="renameGoal" data-id="' + g.id + '"><label class="fld">Title<input id="rg-title" value="' + esc(g.title) + '" maxlength="120"></label><div class="actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit">Save</button></div></form>');
   },
@@ -2192,6 +2215,7 @@ Object.assign(chg, {
   },
   taskNote: function(el){ const t = byId(el.dataset.id); if (t && t.owner === S.me) { t.note = el.value.trim(); save(); toast('Note saved.'); } },
   krQuarter: function(el){
+    if (leadOnly()) { render(); return; }
     const k = kr(el.dataset.id), q = +el.value; if (!k || q === k.quarter) return;
     logChange('kr', k.id, 'quarter', qLabel(k.quarter), qLabel(q), k.title); k.quarter = q; save(); toast('Planned for ' + qLabel(q) + '.'); render();
   },
@@ -2202,11 +2226,13 @@ Object.assign(chg, {
 });
 Object.assign(forms, {
   addGoal: function(f){
+    if (leadOnly()) return;
     const t = $('#ng-title', f).value.trim(); if (!t) { toast('Add a title first.'); return; }
     const g = {id: uid(), year: curYear(), title: t, archived: false, deleted: null, notes: '', links: [], status: 'Not started'};
     S.goals.push(g); logChange('goal', g.id, 'created', '', t, t); save(); toast('Goal added.'); render();
   },
   addKr: function(f){
+    if (leadOnly()) return;
     const gid = f.dataset.id, t = $('#nk-' + gid, f).value.trim(); if (!t) { toast('Add a title first.'); return; }
     const k = {id: uid(), goalId: gid, title: t, quarter: quarterOf(TODAY), links: [], notes: '', deleted: null, status: 'Not started', subs: [],
       hist: [{status: 'Not started', at: TODAY, by: S.me}]};
@@ -2249,11 +2275,13 @@ Object.assign(forms, {
     closeModal();
   },
   renameKr: function(f){
+    if (leadOnly()) return;
     const k = kr(f.dataset.id), t = $('#rk-title', f).value.trim(); if (!k || !t) return;
     if (t !== k.title) { logChange('kr', k.id, 'title', k.title, t, t); k.title = t; }
     save(); closeModal(); render();
   },
   renameGoal: function(f){
+    if (leadOnly()) return;
     const g = goal(f.dataset.id), t = $('#rg-title', f).value.trim(); if (!g || !t) return;
     if (t !== g.title) { logChange('goal', g.id, 'title', g.title, t, t); g.title = t; }
     save(); closeModal(); render();
@@ -2472,8 +2500,8 @@ function refreshTrash(){ const sh = $('#modal .sheet'); if (ui.trp && sh) sh.inn
 function trashItems(){
   const out = [];
   S.tasks.filter(t => t.deleted).forEach(t => out.push({type: 'Task', id: t.id, title: t.title, at: t.deleted, own: t.owner === S.me || t.createdBy === S.me}));
-  S.goals.filter(g => g.deleted).forEach(g => out.push({type: 'Goal', id: g.id, title: g.title, at: g.deleted, own: true}));
-  S.krs.filter(k => k.deleted).forEach(k => out.push({type: 'Key result', id: k.id, title: k.title, at: k.deleted, own: true}));
+  if (isLead()) S.goals.filter(g => g.deleted).forEach(g => out.push({type: 'Goal', id: g.id, title: g.title, at: g.deleted, own: true}));
+  if (isLead()) S.krs.filter(k => k.deleted).forEach(k => out.push({type: 'Key result', id: k.id, title: k.title, at: k.deleted, own: true}));
   return out.filter(i => i.own).sort((a, b) => b.at - a.at);
 }
 function fmtTs(ms){ const d = new Date(ms); return d.toLocaleDateString('en-GB', {day: 'numeric', month: 'short'}) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
@@ -2545,8 +2573,7 @@ Object.assign(acts, {
   emptyTrashYes: function(){
     const n = trashItems().length;
     S.tasks = S.tasks.filter(t => !(t.deleted && (t.owner === S.me || t.createdBy === S.me)));
-    S.goals = S.goals.filter(g => !g.deleted);
-    S.krs = S.krs.filter(k => !k.deleted);
+    if (isLead()) { S.goals = S.goals.filter(g => !g.deleted); S.krs = S.krs.filter(k => !k.deleted); }
     ui.trc = false; save(); toast(n + (n === 1 ? ' item' : ' items') + ' deleted forever.'); render(); refreshTrash();
   },
   restoreAll: function(){
@@ -2597,8 +2624,7 @@ Object.assign(forms, {
 function purgeTrash(){
   const lim = Date.now() - 30 * 86400000;
   S.tasks = S.tasks.filter(t => !t.deleted || t.deleted > lim);
-  S.goals = S.goals.filter(g => !g.deleted || g.deleted > lim);
-  S.krs = S.krs.filter(k => !k.deleted || k.deleted > lim);
+  if (isLead()) { S.goals = S.goals.filter(g => !g.deleted || g.deleted > lim); S.krs = S.krs.filter(k => !k.deleted || k.deleted > lim); }
 }
 
 /* ---------- plan popover, view, people order ---------- */
@@ -2878,6 +2904,7 @@ document.addEventListener('keydown', function(e){
 
 /* ---------- sub-tasks on rows, reorder helpers ---------- */
 function placeArr(arr, id, targetId, after){
+  if ((arr === S.goals || arr === S.krs) && leadOnly()) return;
   const i = arr.findIndex(x => x.id === id); if (i < 0 || id === targetId) return;
   const x = arr.splice(i, 1)[0];
   const j = arr.findIndex(y => y.id === targetId);
@@ -2954,7 +2981,7 @@ const LOCAL_KEY = 'sterling-local';
 function emptyState(){
   let loc = {}; try { loc = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}') || {}; } catch(e) {}
   return {v: 6, me: null, view: 'today', date: TODAY, theme: loc.theme || 'auto', accent: loc.accent || 'gray', users: [], categories: [], settings: {overdueDays: 3, poolDays: 2},
-    plans: {}, days: {}, forecast: {}, tasks: [], goals: [], krs: [], reflections: [], reviews: {}, peerRev: {}, changes: [], st2: 1, kd1: 1, dp1: 1, signedIn: false, teamCode: ''};
+    plans: {}, days: {}, forecast: {}, tasks: [], goals: [], krs: [], categories: [], otherCats: [], reflections: [], reviews: {}, peerRev: {}, changes: [], st2: 1, kd1: 1, dp1: 1, signedIn: false, teamCode: ''};
 }
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = v => typeof v === 'string' && UUID_RE.test(v);
@@ -2996,10 +3023,20 @@ async function hydrateData(){
   n.teamCode = cloud.team ? cloud.team.invite_code : '';
   const meta = {}, synced = {};
   items.forEach(function(r){ meta[r.kind + '|' + r.id] = {owner: r.owner_id}; });
+  cloud.prefRaw = prefs;
+  const byOrd = (a, b) => (a.ord == null ? 1e9 : a.ord) - (b.ord == null ? 1e9 : b.ord);
+  const mine = {goalme: {}, krme: {}};
+  (by.goalme || []).forEach(r => { if (r.owner_id === cloud.uid) mine.goalme[r.id.split(':')[0]] = r.data || {}; });
+  (by.krme || []).forEach(r => { if (r.owner_id === cloud.uid) mine.krme[r.id.split(':')[0]] = r.data || {}; });
   (by.task || []).forEach(r => n.tasks.push(Object.assign({}, r.data, {id: r.id})));
-  (by.goal || []).forEach(r => n.goals.push(Object.assign({}, r.data, {id: r.id})));
-  (by.kr || []).forEach(r => n.krs.push(Object.assign({}, r.data, {id: r.id})));
-  (by.category || []).forEach(r => n.categories.push(Object.assign({}, r.data, {id: r.id})));
+  (by.goal || []).forEach(r => n.goals.push(Object.assign({status: 'Not started', notes: '', links: []}, r.data, mine.goalme[r.id] || {}, {id: r.id})));
+  (by.kr || []).forEach(r => n.krs.push(Object.assign({status: 'Not started', notes: '', links: [], subs: [], hist: []}, r.data, mine.krme[r.id] || {}, {id: r.id})));
+  n.goals.sort(byOrd); n.krs.sort(byOrd);
+  (by.category || []).forEach(function(r){
+    const c = Object.assign({}, r.data, {id: r.id});
+    if (r.owner_id === cloud.uid) n.categories.push(c); else n.otherCats.push(c);
+  });
+  n.categories.sort(byOrd);
   (by.plan || []).forEach(r => { n.plans[r.id] = r.data; });
   (by.day || []).forEach(r => { n.days[r.id] = r.data; });
   (by.reflection || []).forEach(r => n.reflections.push(Object.assign({}, r.data, {id: r.id})));
@@ -3007,38 +3044,56 @@ async function hydrateData(){
     if (r.id.indexOf('peer:') === 0) n.peerRev[r.id.slice(5)] = r.data;
     else if (r.id.indexOf('rev:') === 0) n.reviews[r.id.slice(4)] = (r.data || {}).v;
   });
-  (by.setting || []).forEach(function(r){
-    if (r.id === 'team') n.settings = Object.assign(n.settings, r.data);
-    else if (r.id === 'forecast') n.forecast = r.data || {};
-  });
+  const myPref = prefs[cloud.uid] || {};
+  if (myPref.settings) n.settings = Object.assign(n.settings, myPref.settings);
+  if (myPref.forecast) n.forecast = myPref.forecast;
   S = n;
   ORD = S.tasks.reduce((m, x) => Math.max(m, x.order || 0), 0);
   cloud.meta = meta;
-  const cur = collect();
-  Object.keys(cur).forEach(k => { synced[k] = sig(cur[k]); });
+  const cur0 = collect();
+  Object.keys(cur0).forEach(k => { if (meta[k]) synced[k] = sig(cur0[k]); });
   cloud.synced = synced;
+  if (!S.categories.length) S.categories = defaultCats();
+  purgeTrash();
+  fixOrphans();
+  const cur1 = collect();
+  if (Object.keys(cur1).some(k => !(k in synced) || synced[k] !== sig(cur1[k])) || Object.keys(synced).some(k => !(k in cur1))) cloud.dirty = true;
   cloud.orderSig = S.users.map(u => u.id).join(',');
-  const seedMissing = !S.categories.length && isLead();
-  if (seedMissing) { S.categories = defaultCats(); cloud.dirty = true; }
   cloud.loaded = true;
   return 'ok';
 }
 function collect(){
   const out = {};
   const put = function(kind, id, owner, data, assignee){ out[kind + '|' + id] = {kind: kind, id: id, owner: owner, data: data, assignee: assignee || null}; };
+  const pick = (o, keys) => { const r = {}; keys.forEach(k => { if (o[k] !== undefined) r[k] = o[k]; }); return r; };
+  const rest = (o, keys) => { const r = {}; Object.keys(o).forEach(k => { if (keys.indexOf(k) < 0) r[k] = o[k]; }); return r; };
   const sharedOwner = (kind, id) => (cloud.meta[kind + '|' + id] || {}).owner || S.me;
   S.tasks.forEach(function(t){ const to = t.asg && isUuid(t.asg.to) ? t.asg.to : null; put('task', t.id, isUuid(t.owner) ? t.owner : S.me, t, to); });
-  S.goals.forEach(g => put('goal', g.id, sharedOwner('goal', g.id), g));
-  S.krs.forEach(k => put('kr', k.id, sharedOwner('kr', k.id), k));
-  S.categories.forEach(c => put('category', c.id, sharedOwner('category', c.id), c));
+  const blank = function(d){ return Object.keys(d).every(function(x){ const v = d[x]; return v == null || v === '' || v === 'Not started' || (Array.isArray(v) && !v.length); }); };
+  const lead = isLead();
+  S.goals.forEach(function(g, i){
+    if (lead) put('goal', g.id, sharedOwner('goal', g.id), Object.assign(pick(g, GOAL_SHARED), {ord: i}));
+    const d = rest(g, GOAL_SHARED), key = g.id + ':' + S.me;
+    if (cloud.meta['goalme|' + key] || !blank(d)) put('goalme', key, S.me, d);
+  });
+  S.krs.forEach(function(k, i){
+    if (lead) put('kr', k.id, sharedOwner('kr', k.id), Object.assign(pick(k, KR_SHARED), {ord: i}));
+    const d = rest(k, KR_SHARED), key = k.id + ':' + S.me;
+    if (cloud.meta['krme|' + key] || !blank(d)) put('krme', key, S.me, d);
+  });
+  S.categories.forEach((c, i) => put('category', c.id, S.me, Object.assign({}, c, {ord: i})));
   Object.keys(S.plans).forEach(function(k){ const o = k.split('|')[0]; if (isUuid(o)) put('plan', k, o, S.plans[k]); });
   Object.keys(S.days).forEach(function(k){ const o = k.split('|')[0]; if (isUuid(o)) put('day', k, o, S.days[k]); });
   S.reflections.forEach(function(r){ if (r.userId === S.me) put('reflection', r.id, S.me, r); });
   Object.keys(S.reviews || {}).forEach(k => put('review', 'rev:' + k, S.me, {v: S.reviews[k]}));
   Object.keys(S.peerRev || {}).forEach(k => put('review', 'peer:' + k, S.me, S.peerRev[k]));
-  put('setting', 'team', sharedOwner('setting', 'team'), S.settings);
-  put('setting', 'forecast', sharedOwner('setting', 'forecast'), S.forecast);
-  const m = me(); if (m) put('pref', S.me, S.me, {view: m.view || null, pto: m.pto || null});
+  S.users.forEach(function(u){
+    const raw = (cloud.prefRaw || {})[u.id] || {};
+    if (u.id !== S.me && !cloud.meta['pref|' + u.id] && !(lead && (u.view || u.pto !== (u.role === 'Team lead' ? 25 : 20)))) return;
+    const d = Object.assign({}, raw, {view: u.view || null, pto: u.pto || null});
+    if (u.id === S.me) { d.settings = S.settings; d.forecast = S.forecast; }
+    put('pref', u.id, u.id, d);
+  });
   return out;
 }
 const sig = o => JSON.stringify([o.owner, o.assignee, o.data]);
@@ -3104,7 +3159,7 @@ async function refreshCloud(){
   if (!CLOUD || !SB || !S.signedIn || cloud.busy || cloud.timer && cloud.dirty) return;
   if (!$('#modal').hidden || (document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) return;
   const sig0 = JSON.stringify([S.tasks.length, S.goals.length, S.krs.length]);
-  try { const r = await hydrateData(); if (r === 'ok') { render(); } } catch(e) {}
+  try { const r = await hydrateData(); if (r === 'ok') { render(); if (cloud.dirty) flush(); } } catch(e) {}
 }
 async function enterCloud(){
   let r;
