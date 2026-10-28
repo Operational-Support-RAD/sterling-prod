@@ -1546,12 +1546,15 @@ const GOAL_FIELDS = [
   ['kr', 'Key result', /key|result|^kr/i, true],
   ['quarter', 'Quarter', /quarter|^q$/i],
   ['status', 'Status', /status/i],
-  ['notes', 'Notes', /note|desc|comment/i]
+  ['notes', 'Notes', /note|desc|comment/i],
+  ['sub', 'Sub-item (becomes a task)', /^sub-?\s?item$|^subtask|^sub-?task/i],
+  ['subdone', 'Sub-item done', /sub.*(done|complete)/i],
+  ['subdate', 'Sub-item date', /sub.*(date|end|due)/i]
 ];
-function impFields(){ return ui.imp && ui.imp.type === 'goals' ? GOAL_FIELDS : TASK_FIELDS; }
+function impFields(m){ m = m || ui.imp; return m && m.type === 'goals' ? GOAL_FIELDS : TASK_FIELDS; }
 function impGuess(m){
   const used = {}; m.map = {};
-  impFields().forEach(function(f){
+  impFields(m).forEach(function(f){
     const i = m.headers.findIndex((h, ix) => !used[ix] && f[2].test(h));
     m.map[f[0]] = i; if (i >= 0) used[i] = 1;
   });
@@ -1598,10 +1601,14 @@ function matchUser(v){
 function impBuild(m){
   const items = [];
   if (m.type === 'goals') {
-    m.data.slice(0, 500).forEach(function(r){
+    const seen = {};
+    m.data.slice(0, 1000).forEach(function(r){
       const goalT = cellOf(r, m, 'goal'), krT = cellOf(r, m, 'kr'); if (!goalT || !krT) return;
+      const key = goalT.toLowerCase() + '\n' + krT.toLowerCase(), subT = cellOf(r, m, 'sub');
+      const sub = subT ? {title: subT.slice(0, 140), done: /^(y|yes|true|1|done|x|complete)/i.test(cellOf(r, m, 'subdone')), date: parseDateCell(cellOf(r, m, 'subdate'))} : null;
+      if (seen[key]) { if (sub) seen[key].subs.push(sub); return; }
       const q = /([1-4])/.exec(cellOf(r, m, 'quarter')), st = cellOf(r, m, 'status').toLowerCase();
-      items.push({goal: goalT, kr: krT, quarter: q ? +q[1] : quarterOf(TODAY), notes: cellOf(r, m, 'notes'),
+      items.push(seen[key] = {goal: goalT, kr: krT, quarter: q ? +q[1] : quarterOf(TODAY), notes: cellOf(r, m, 'notes'), subs: sub ? [sub] : [],
         status: STATUSES.find(s => s.toLowerCase() === st) || (/done|complete/.test(st) ? 'Done' : /continu|ongoing|risk/.test(st) ? 'Continuing' : /question/.test(st) ? 'Question' : /progress|doing/.test(st) ? 'In progress' : 'Not started')});
     });
     return items;
@@ -1621,9 +1628,9 @@ function impPanel(){
   const fields = impFields();
   const opts = sel => '<option value="-1">(skip)</option>' + m.headers.map((h, i) => '<option value="' + i + '"' + (+sel === i ? ' selected' : '') + '>' + esc(h || ('Column ' + (i + 1))) + '</option>').join('');
   const items = impBuild(m);
-  const cols = m.type === 'goals' ? ['Goal', 'Key result', 'Quarter', 'Status'] : ['Title', 'Date', 'For', 'Priority'];
+  const cols = m.type === 'goals' ? ['Goal', 'Key result', 'Quarter', 'Sub-items'] : ['Title', 'Date', 'For', 'Priority'];
   const rowsHtml = items.slice(0, 5).map(i => m.type === 'goals'
-    ? '<tr><td>' + esc(i.goal) + '</td><td>' + esc(i.kr) + '</td><td>Q' + i.quarter + '</td><td>' + esc(i.status) + '</td></tr>'
+    ? '<tr><td>' + esc(i.goal) + '</td><td>' + esc(i.kr) + '</td><td>Q' + i.quarter + '</td><td>' + (i.subs || []).length + '</td></tr>'
     : '<tr><td>' + esc(i.title) + '</td><td>' + (i.date ? fmtDay(i.date) : 'Backlog') + '</td><td>' + esc((user(i.owner) || {}).name) + '</td><td>' + PRI_NAME[i.priority] + '</td></tr>').join('');
   return '<p class="muted" style="margin:0 0 8px">' + esc(m.file || 'Pasted text') + ': ' + m.data.length + ' rows. Check that each field points at the right column.</p>' +
     (m.sheets && m.sheets.length > 1 ? '<label class="fld" style="max-width:260px;margin-bottom:8px">Sheet<select data-chg="impSheet">' + m.sheets.map(s => '<option' + (s === m.sheet ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></label>' : '') +
@@ -1679,16 +1686,20 @@ Object.assign(acts, {
     if (m.type === 'goals' && leadOnly()) return;
     if (m.type !== 'goals' && items.some(i => !i.krId)) { toast('Choose a key result for the tasks first.'); return; }
     if (m.type === 'goals') {
-      const year = curYear(); let nk = 0;
+      const year = curYear(); let nk = 0, nt = 0;
       items.forEach(function(i){
         let g = S.goals.find(x => !x.deleted && x.year === year && x.title.toLowerCase() === i.goal.toLowerCase());
         if (!g) { g = {id: uid(), year: year, title: i.goal, archived: false, deleted: null, notes: '', links: [], status: 'Not started'}; S.goals.push(g); }
         if (S.krs.some(k => !k.deleted && k.goalId === g.id && k.title.toLowerCase() === i.kr.toLowerCase())) return;
-        S.krs.push({id: uid(), goalId: g.id, title: i.kr, quarter: i.quarter, links: [], notes: i.notes, deleted: null, status: i.status, subs: [],
-          hist: [{status: i.status, at: TODAY, by: S.me}]});
+        const kobj = {id: uid(), goalId: g.id, title: i.kr, quarter: i.quarter, links: [], notes: i.notes, deleted: null, status: i.status, subs: [],
+          hist: [{status: i.status, at: TODAY, by: S.me}]};
+        S.krs.push(kobj);
+        (i.subs || []).forEach(function(sb){
+          S.tasks.push(newTask({krId: kobj.id, title: sb.title, owner: S.me, date: sb.date, priority: 2, done: sb.done, doneAt: sb.done ? (sb.date || TODAY) : null, createdBy: S.me})); nt++;
+        });
         nk++;
       });
-      toast(nk + ' key results added to ' + year + '. Existing ones were skipped.');
+      toast(nk + ' key results' + (nt ? ' and ' + nt + ' tasks' : '') + ' added to ' + year + '. Existing key results were skipped.');
     } else {
       items.forEach(function(i){
         S.tasks.push(newTask({krId: i.krId, title: i.title, owner: i.owner, date: i.date, priority: i.priority, desc: i.desc,
