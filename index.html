@@ -184,6 +184,8 @@ a{color:var(--ink)}
 .segb button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));width:54px;height:54px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);font-size:30px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:40}
 .wgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:start}
+.wgrid.full{grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+@media (max-width:1100px){.wgrid.full{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}}
 .wcol .task{grid-template-columns:auto minmax(0,1fr);gap:4px 8px;padding:11px 0}
 .wcol .task .tright{grid-column:2;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px}
 .wcol .task .tmeta.dates{gap:4px 10px;font-size:12px}
@@ -216,8 +218,9 @@ a{color:var(--ink)}
 .krhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .krbody{border-left:2px solid var(--line);padding-left:12px;margin-top:10px;display:flex;flex-direction:column;gap:14px}
 .kpsheet{width:min(760px,100%)}
-.kphead{display:flex;gap:12px 16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px}
-.kptitle{flex:1 1 240px;min-width:0}
+.kphead{display:flex;gap:12px 16px;align-items:center;justify-content:space-between;flex-wrap:nowrap;margin-bottom:8px}
+@media (max-width:640px){.kphead{flex-wrap:wrap}}
+.kptitle{flex:1 1 0;min-width:0}
 .kptitle h2{margin:0;font-size:18px;overflow-wrap:anywhere}
 .kppop .kpmeta{margin:0;flex:none;margin-left:auto;justify-content:flex-end}
 .kppop .tphd{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px}
@@ -256,10 +259,47 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .pophd{font-weight:600;margin-bottom:8px;overflow-wrap:anywhere}
 .vrow{display:grid;grid-template-columns:104px minmax(0,1fr);gap:8px;padding:7px 0;border-top:1px solid var(--line)}
 .vrow:first-child{border-top:0}
-.ghead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:nowrap;margin-bottom:10px}
+.ghead>.c1{flex:1 1 0;min-width:0}
+.ghead>.row{flex:none;align-self:center}
+.savest{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:default}
+.savest::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.savest[data-s=saving]::before{background:var(--muted);animation:svp 1s ease-in-out infinite}
+.savest[data-s=error]{color:var(--warn);border-color:var(--warn);cursor:pointer}
+.savest[data-s=error]::before{background:var(--warn)}
+@keyframes svp{50%{opacity:.25}}
+.task.sel{background:color-mix(in srgb,var(--ink) 8%,transparent);border-radius:8px}
+body.marq{user-select:none;-webkit-user-select:none}
+.marquee{position:fixed;z-index:80;border:1px solid var(--ink);background:color-mix(in srgb,var(--ink) 10%,transparent);border-radius:3px;pointer-events:none}
+.selbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:75;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;white-space:nowrap;overflow-x:auto;justify-content:flex-start;min-width:min(560px,calc(100vw - 32px));max-width:calc(100vw - 32px);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 12px;box-shadow:0 8px 28px rgba(0,0,0,.24)}
+.selbar[hidden]{display:none}
+.kpick{position:fixed;inset:0;z-index:400;background:var(--scrim,rgba(0,0,0,.35));display:flex;align-items:center;justify-content:center;padding:16px}
+.kpbox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(680px,100%);max-height:min(74vh,660px);display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.kpsearch{margin:12px;font:inherit;font-size:15px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink)}
+.kplist{overflow:auto;padding:0 8px 12px}
+.kpg{font-weight:600;font-size:13px;color:var(--muted);padding:12px 8px 4px;overflow-wrap:anywhere}
+.kpo{display:block;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:8px;font:inherit;font-size:14.5px;color:var(--ink);cursor:pointer;overflow-wrap:anywhere}
+.kpo:hover,.kpo.on{background:var(--soft)}
+.kpo.none{color:var(--muted)}
+.selpick{position:relative;overflow:hidden;cursor:pointer}
+.selpick input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+.selsel{appearance:auto;cursor:pointer;max-width:130px;flex:none}
+.selbar>*{flex:none}
+.selred{margin-left:auto;background:#C62828;border-color:#C62828;color:#fff}
+.selred:hover{background:#A81E1E;color:#fff}
+.mgrid{gap:8px}
+.mcell{min-height:112px;cursor:pointer;gap:3px}
+.mchip{display:block;font-size:12px;line-height:1.3;padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--ink) 9%,transparent);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;touch-action:none;user-select:none}
+.mchip.done{text-decoration:line-through;color:var(--muted)}
+.mchip.sel{outline:1.5px solid var(--ink)}
+.mcell.dz-over{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.wchips{display:flex;flex-direction:column;gap:4px;min-height:40px;margin-top:8px}
+.wgrid.full .whead{font-size:13px}
+.wgrid.full .wcol{min-height:170px}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
 .brd-row{display:grid;grid-template-columns:minmax(0,1fr) 62px 108px 128px 52px;gap:10px;align-items:center}
 .kact{display:flex;justify-content:flex-end;gap:0}
-.kcard .kact{position:absolute;right:4px;top:4px;background:var(--surface);border-radius:6px}
+.kcard .kact{position:static;align-self:center}
 .kppop .kact{margin-right:2px}
 .kact .pencil,.kact .trashbtn{padding:4px}
 .gsub{display:block;font-size:12px;color:var(--muted);opacity:.7;margin:1px 0 0 14px;max-width:34ch;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -286,10 +326,31 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .prog{display:flex;align-items:center;gap:6px}
 .pbar{display:inline-block;width:46px;height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
 .pbar i{display:block;height:100%;background:var(--accent)}
+.lpills{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.lpill{font:inherit;font-size:13.5px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.lpill:hover{border-color:var(--muted)}
+.lpill[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lpill[aria-pressed=true] .muted{color:inherit;opacity:.7}
+.lpill.add{color:var(--muted);border-style:dashed}
+.lsec{margin-bottom:12px}
+.sgrip{cursor:grab;color:var(--muted);opacity:.6;margin-right:6px;touch-action:none;user-select:none;letter-spacing:-2px;font-weight:400}
+.sgrip:hover{opacity:1}
+.sdrag{opacity:.5}
+.sover-b{box-shadow:0 -3px 0 0 var(--ink)}
+.lsec.sover-a{box-shadow:0 3px 0 0 var(--ink)}
+.lcol.sover-b{box-shadow:-3px 0 0 0 var(--ink)}
+.lcol.sover-a{box-shadow:3px 0 0 0 var(--ink)}
+.lsec.dz-over,.lcol.dz-over{outline:2px solid var(--ink)}
+.lboard{display:flex;gap:12px;overflow-x:auto;align-items:flex-start;padding-bottom:8px}
+.lcol{flex:0 0 270px;background:var(--soft);border-radius:12px;padding:10px;min-height:140px}
+.lcol.lnew{background:transparent;border:1px dashed var(--line)}
+.bcards{list-style:none;margin:0;padding:0;min-height:12px}
+.bcard{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;cursor:grab;touch-action:none;overflow-wrap:anywhere;font-size:14.5px}
+.bcard.dragging{opacity:.4}
 .kb{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
 .kcol{background:var(--soft);border-radius:12px;padding:10px;min-height:160px;min-width:0}
 .kcol h3{margin:0 0 4px;font-size:12.5px;color:var(--muted);text-transform:none;letter-spacing:0}
-.kcard{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px 8px 4px;margin-top:8px}
+.kcard{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px 8px 4px;margin-top:8px}
 @media (max-width:640px){
   .brd-row{grid-template-columns:minmax(0,1fr) 62px 108px 52px}
   .brd-row>:nth-child(3){display:none}
@@ -309,8 +370,8 @@ input.chk.cflash{animation:gflash .28s ease-in-out 4;outline:2px solid var(--bad
 #h-over{color:var(--bad)}
 .card.missed{background:var(--bad-bg);border-color:var(--bad)}
 .button.dledit,button.dledit{background:none;border:0;padding:0;font-family:inherit}
-.btn.frombl{font-weight:400;font-size:13px;padding:3px 10px;opacity:.75}
-.btn.frombl:hover{opacity:1;color:var(--ink)}
+.btn.quiet.frombl{font-weight:600;font-size:14px;padding:6px 14px;opacity:1;color:var(--ink);border:1.5px solid var(--ink);background:transparent}
+.btn.quiet.frombl:hover{background:var(--ink);color:var(--bg)}
 .txfull{grid-column:1/-1}
 .ntblock{padding-bottom:8px;margin-bottom:8px;border-bottom:1px solid var(--line)}
 .tdet{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
@@ -376,6 +437,10 @@ button.apill:hover,.asgbtn:hover{color:var(--ink);border-color:var(--ink)}
 .trashcard{border:1.5px solid var(--ink);background:var(--soft);margin-bottom:6px}
 .trashico{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:10px;background:var(--ink);color:var(--bg);margin-right:10px}
 .trashico svg{width:18px;height:18px}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.trow:first-of-type{border-top:0}
+.whoami{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:0;padding:2px 4px;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.whoami:hover{text-decoration-color:var(--ink)}
 .prtabs{gap:6px;margin:0 0 10px;flex-wrap:wrap}
 .prtab{border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:4px 12px;font:inherit;font-size:13.5px;cursor:pointer}
 .prtab:hover{color:var(--ink);border-color:var(--ink)}
@@ -418,6 +483,10 @@ button.apill:hover,.asgbtn:hover{color:var(--ink);border-color:var(--ink)}
 .authtabs button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .autherr{margin:0;color:var(--danger,#B3261E);font-size:13px}
 .authhint{margin:0;color:var(--muted);font-size:12.5px;line-height:1.5}
+.authok{margin:0;color:var(--good);font-size:13px}
+.pwmatch{margin:0;font-size:12.5px;min-height:1em}
+.pwmatch.ok{color:var(--good)}
+.pwmatch.bad{color:var(--danger,#B3261E)}
 .authhint code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:12px}
 .invcode{display:inline-block;margin-top:8px;background:var(--soft);padding:5px 10px;border-radius:8px;font-size:15px;letter-spacing:.06em;user-select:all}
 body.cloudmode .who label,body.cloudmode .demo{display:none}
@@ -430,7 +499,7 @@ body.notlead .qsel{pointer-events:none;appearance:none;-webkit-appearance:none;b
 <div class="app">
   <header class="top">
     <div class="brand" role="img" aria-label="Sterling">S<svg aria-hidden="true" focusable="false" viewBox="0 0 70 80"><path d="M 27 6.5 V 52 C 27 67 36 73.5 48 73.5 C 57 73.5 62 69 63.5 62" stroke-width="13"/><path d="M 5 6.5 H 65" stroke-width="13"/><path d="M 3 34.5 H 55" stroke-width="13" stroke-dasharray="10.5 3.5"/></svg>erling<span class="dot"></span></div>
-    <div class="who"><label for="who">Viewing as <select id="who" data-chg="user"></select></label> <span id="whoami" class="muted"></span> <button type="button" class="btn small quiet" data-act="signOut">Sign out</button></div>
+    <div class="who"><button type="button" class="savest" id="savest" data-act="saveNow" data-s="saved" aria-live="polite">Saved</button> <label for="who">Viewing as <select id="who" data-chg="user"></select></label> <button type="button" id="whoami" class="whoami" data-act="openProfile" aria-label="Your details"></button> <button type="button" class="btn small quiet" data-act="signOut">Sign out</button></div>
   </header>
   <p class="demo">Demo data, stored only in this browser. Switch the person to see their view.</p>
   <nav class="tabs" id="tabs" aria-label="Sections"></nav>
@@ -438,6 +507,7 @@ body.notlead .qsel{pointer-events:none;appearance:none;-webkit-appearance:none;b
 </div>
 <div id="auth" class="authwrap" hidden></div>
 <div id="modal" class="modal" hidden></div>
+<div id="selbar" class="selbar" hidden></div>
 <div id="pop" class="pop" role="dialog" aria-label="Plan a task" hidden></div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
@@ -480,11 +550,19 @@ function syncReq(){
     });
   });
 }
+const SV = {t: null};
+const SV_TXT = {saved: 'Saved', saving: 'Saving…', error: 'Not saved. Click to retry'};
+function setSave(st){ const el = document.getElementById('savest'); if (!el) return; el.dataset.s = st; el.textContent = SV_TXT[st]; }
 function save(){
   try { syncReq(); } catch(e) {}
+  setSave('saving');
   if (CLOUD) return cloudSave();
   clearTimeout(saveT);
-  saveT = setTimeout(function(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }, 150);
+  saveT = setTimeout(function(){
+    let ok = true;
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) { ok = false; }
+    clearTimeout(SV.t); SV.t = setTimeout(function(){ setSave(ok ? 'saved' : 'error'); }, 450);
+  }, 150);
 }
 function load(){
   try {
@@ -509,6 +587,7 @@ function load(){
           (o.tasks || []).forEach(function(t){ if (t.done && t.krId && !t.deleted) t.deleted = now; });
           o.kd1 = 1;
         }
+        o.lists = o.lists || [];
         return o;
       }
     }
@@ -519,7 +598,7 @@ function load(){
 function newTask(o){
   return Object.assign({
     id: uid(), title: '', catId: null, owner: null, date: null, est: null, status: 'Not started',
-    done: false, doneAt: null, scope: 'team', fromLead: false, priority: 2, tags: [], desc: '', subs: [],
+    done: false, doneAt: null, scope: 'team', fromLead: false, priority: null, tags: [], desc: '', subs: [],
     createdBy: null, createdAt: TODAY, krId: null, link: '', note: '', deadline: null, order: ++ORD,
     resched: 0, hist: [], deleted: null, claimedBy: null
   }, o);
@@ -666,7 +745,16 @@ function seed(){
     {id:uid(), at: Date.now() - 86400000 * 2, by:'u1', kind:'kr', refId:'k7', field:'status', old:'In progress', new:'Continuing', label:'Reduce report errors by 30%'},
     {id:uid(), at: Date.now() - 86400000 * 5, by:'u2', kind:'category', refId:'c3', field:'name', old:'Champion hours', new:'Champion Hours', label:'Category'}
   ];
+  const lists = [];
+  ['u1', 'u2'].forEach(function(u, n){
+    const a = 'l' + (n * 2 + 1), b = 'l' + (n * 2 + 2);
+    lists.push({id: a, owner: u, name: 'Reports', secs: [{id: 's' + (n * 2 + 1), name: 'To do soon'}, {id: 's' + (n * 2 + 2), name: 'Later'}]}, {id: b, owner: u, name: 'Team admin', secs: []});
+    tasks.filter(t => t.owner === u && !t.date && !t.done).slice(0, 4).forEach(function(t, i){
+      t.listId = i < 3 ? a : b; t.secId = i === 0 ? 's' + (n * 2 + 1) : (i === 1 ? 's' + (n * 2 + 2) : null);
+    });
+  });
   return {
+    lists: lists,
     v: 6, me: 'u2', view: 'today', date: T, theme: 'auto', accent: 'gray',
     users: users, categories: categories, settings: {overdueDays: 3, poolDays: 2},
     plans: plans, days: days, forecast: forecast,
@@ -714,7 +802,7 @@ function effAvail(u, d){
   if (isWeekend(d)) return 0;
   return e && e.type === 'reduced' ? Math.min(p.avail, e.hours) : p.avail;
 }
-const inReview = t => !!t.needReview && !t.done && !t.krId;
+const inReview = t => !t.done && ((!!t.needReview && !t.krId) || !!t.listReview);
 const incomingAsg = u => S.tasks.filter(t => !t.deleted && t.asg && t.asg.to === u && t.asg.state === 'wait' && t.owner !== u && (!t.srcId || (byId(t.srcId) && !byId(t.srcId).deleted)));
 const mates = (exclude) => S.users.filter(u => exclude.indexOf(u.id) < 0);
 const grpReqs = t => (t.grp || []).map(id => S.tasks.find(x => x.id === id)).filter(Boolean);
@@ -830,11 +918,11 @@ function closeModal(){
 function tpHtml(t){
   const own = t.owner === S.me && !asgLocked(t), p = t.priority || 2, pset = !!t.priority;
   const chk = '<input type="checkbox" class="chk" id="chk-' + t.id + '" data-chg="toggle" data-id="' + t.id + '"' + (t.done ? ' checked' : '') + (own ? '' : ' disabled') + ' aria-label="Done: ' + esc(t.title) + '">';
-  const pri = own ? '<select class="chip' + (pset ? ' p' + p : '') + ' chipsel" data-chg="prioSet" data-id="' + t.id + '" aria-label="Priority">' + priOptions(p, pset ? 'clear' : true) + '</select>' : '<span class="chip p' + p + '">' + PRI_NAME[p] + '</span>';
+  const pri = own ? '<select class="chip' + (pset ? ' p' + p : '') + ' chipsel" data-chg="prioSet" data-id="' + t.id + '" aria-label="Priority">' + priOptions(p, pset ? 'clear' : true) + '</select>' : '<span class="chip' + (t.priority ? ' p' + p : '') + '">' + (t.priority ? PRI_NAME[p] : 'Priority') + '</span>';
   const meta = own ? '<div class="tmeta dates">' + dateEdit(t) + dueEdit(t) + goalEdit(t) + asgPill(t) + asgBtn(t) + (t.fromLead ? '<span class="chip lead">From Team Lead</span>' : '') + fromChip(t) + '</div>'
     : '<div class="tmeta dates">' + asgInBtn(t) + asgPill(t) + '</div>';
   return '<div class="tpwrap tp' + (t.done ? ' done' : '') + '"><div class="tphd">' + chk + '<h2>' + esc(t.title) + '</h2>' + (own ? penBtn(t) : '') + '<button type="button" class="tpx" data-act="closeModal" aria-label="Close">×</button></div>' +
-    meta + '<div class="tprow">' + pri + '</div>' + (own ? txPanel(t, own, true) : roFacts(t)) +
+    meta + '<div class="tprow">' + pri + (own ? listPick(t) : '') + '</div>' + (own ? txPanel(t, own, true) : roFacts(t)) +
     (own ? '<div class="tpft"><button type="button" class="btn small quiet" data-act="trashTask" data-id="' + t.id + '">Delete task</button></div>' : (asgLocked(t) && t.owner === S.me ? '<div class="tpft"><button type="button" class="btn small quiet" data-act="asgClear" data-id="' + t.id + '">Remove from my list</button></div>' : '')) + '</div>';
 }
 function kpHtml(k){
@@ -938,7 +1026,7 @@ function sortSelect(key){
 const dueWord = d => d === TODAY ? 'Due today' : d === addDays(TODAY, 1) ? 'Due tomorrow' : 'Due ' + fmtDay(d);
 const ICO_FLAG = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px;margin-right:3px"><path d="M5 3v18M5 4h13l-3 4.5 3 4.5H5z"/></svg>';
 function dateEdit(t){
-  return '<button type="button" class="dledit" data-act="datePop" data-kind="plan" data-id="' + t.id + '">' + (t.date ? esc(t.date === TODAY ? 'Planned for today' : t.date === addDays(TODAY, 1) ? 'Planned for tomorrow' : 'Planned for ' + fmtDay(t.date)) : 'Not planned') + '</button>';
+  return '<button type="button" class="dledit" data-act="datePop" data-kind="plan" data-id="' + t.id + '">' + (t.date ? esc(t.date === TODAY ? 'Planned for today' : t.date === addDays(TODAY, 1) ? 'Planned for tomorrow' : t.date < TODAY ? fmtDay(t.date) : 'Planned for ' + fmtDay(t.date)) : 'Not planned') + '</button>';
 }
 function goalEdit(t){
   const k = t.krId ? kr(t.krId) : null;
@@ -1004,7 +1092,7 @@ function lazyDone(id){
 }
 const gripBtn = (id, label) => '<button type="button" class="grip" data-grip id="gr-' + id + '" aria-label="' + esc(label) + '">⋮⋮</button>';
 function setDone(t, v, note){
-  setTask(t, 'done', !!v); t.doneAt = v ? TODAY : null; if (v) t.needReview = false;
+  setTask(t, 'done', !!v); t.doneAt = v ? TODAY : null; if (v) { t.needReview = false; t.listReview = false; }
   if (v) t.status = 'Done'; else if (t.status === 'Done') t.status = 'Not started';
   if (note !== undefined) t.note = note;
 }
@@ -1038,8 +1126,8 @@ function taskRow(t, o){
   const plan = today && o.pick ? '<span class="row" style="gap:6px;flex-wrap:nowrap"><select class="chip' + (pset ? ' p' + p : '') + ' chipsel" data-chg="prioSet" data-id="' + t.id + '" aria-label="Priority">' + priOptions(p, pset ? 'clear' : true) + '</select>' + pen + (o.chk ? '' : goBtn) + (o.chk ? '<button type="button" class="trashbtn" data-act="trashTask" data-id="' + t.id + '" aria-label="Delete task" title="Delete">' + ICO_TRASH + '</button>' : '') + '</span>' : today ? '<span class="row" style="gap:6px;flex-wrap:nowrap">' + (o.statusHtml || '') + '<select class="chip' + (pset ? ' p' + p : '') + ' chipsel" data-chg="prioSet" data-id="' + t.id + '" aria-label="Priority">' + priOptions(p, pset ? 'clear' : true) + '</select>' + pen + '<button type="button" class="trashbtn" data-act="trashTask" data-id="' + t.id + '" aria-label="Delete task" title="Delete">' + ICO_TRASH + '</button></span>' : '';
   const showTx = !o.min && !o.compact && (own || subs.length), open = ui.tx && ui.tx[t.id];
   const tx = showTx && !today ? ' <button class="linklike muted tx" data-act="tx" data-id="' + t.id + '" aria-expanded="' + (open ? 'true' : 'false') + '">' + (open ? '▾ ' : '▸ ') + (subs.length ? subs.filter(s => s.done).length + '/' + subs.length + ' sub-tasks' : '+ Sub-task') + '</button>' : '';
-  return '<li class="task' + (t.done ? ' done' : '') + (open && showTx ? ' open' : '') + '" data-item="task" data-id="' + t.id + '"><span class="c1">' + grip + chk + '</span><div>' + head +
-    (today ? '' : ' <span class="chip p' + p + '">' + PRI_NAME[p] + '</span>') + (t.fromLead && !o.min && !today ? ' <span class="chip lead">From Team Lead</span>' : '') + (!o.min && !today ? fromChip(t) : '') + tx +
+  return '<li class="task' + (t.done ? ' done' : '') + ((ui.sel || []).indexOf(t.id) >= 0 ? ' sel' : '') + (open && showTx ? ' open' : '') + '" data-item="task" data-id="' + t.id + '"><span class="c1">' + grip + chk + '</span><div>' + head +
+    (today ? '' : pset ? ' <span class="chip p' + p + '">' + PRI_NAME[p] + '</span>' : ' <span class="chip">Priority</span>') + (t.fromLead && !o.min && !today ? ' <span class="chip lead">From Team Lead</span>' : '') + (!o.min && !today ? fromChip(t) : '') + tx +
     (o.compact || o.min ? '' : today ? '<div class="tmeta dates">' + (o.pick && !o.pill ? '' : dateEdit(t)) + dueEdit(t) + goalEdit(t) + asgPill(t) + (t.fromLead ? '<span class="chip lead">From Team Lead</span>' : '') + fromChip(t) + '</div>' : '<div class="tmeta">' + (asgPill(t) ? bits.concat([asgPill(t)]) : bits).map(b => '<span>' + b + '</span>').join('') + '</div>') +
     (t.note && mine && !o.compact ? '<div class="tnote">Result: ' + esc(t.note) + '</div>' : '') +
     (open && showTx && (!o.pick || o.inline) ? txPanel(t, own, today) : '') +
@@ -1121,19 +1209,21 @@ function dayBody(){
   const over = missedTasks(u), dg = false;
   const vis = '<select class="plain" data-chg="vis" aria-label="Show tasks">' + [['', 'All'], ['me', 'Only me'], ['team', 'Team']].map(o => '<option value="' + o[0] + '"' + ((ui.vis || '') === o[0] ? ' selected' : '') + '>Show: ' + o[1] + '</option>').join('') + '</select>';
   return '<div class="cols"><div class="stack">' + (over.length ? overdueCard(over) : '') +
-    '<section class="card main" data-dzdate="' + d + '"><div class="row between" style="margin-bottom:10px"><span class="row" style="gap:12px"><h2 style="margin:0" id="h-plan">Planned</h2><button class="btn quiet frombl" data-act="pickBacklog">From backlog</button></span><span class="row">' + sortSelect('sortToday') + '</span></div>' +
+    '<section class="card main" data-dzdate="' + d + '"><div class="row between" style="margin-bottom:10px"><span class="row" style="gap:12px"><h2 style="margin:0" id="h-plan">Planned</h2><button class="btn quiet frombl" data-act="pickBacklog">Plan from backlog</button></span><span class="row">' + sortSelect('sortToday') + '</span></div>' +
     (planned.length ? '<ul class="tasks big" data-list="day">' + planned.map(t => taskRow(t, {drag: dg, plan: true})).join('') + '</ul>' : '<p class="empty">Nothing planned for this day.</p>') + quickBar() +
     '</section>' +
     (doneList.length ? '<details class="card donebox" id="donebox"' + (ui.doneOpen ? ' open' : '') + '><summary>Completed ' + (d === TODAY ? 'today' : 'this day') + ' (' + doneList.length + ')</summary><ul class="tasks">' + doneList.map(t => taskRow(t, {plan: true})).join('') + '</ul></details>' : '') + '</div>' +
     '<div class="stack"><section class="card side" id="budget-card">' + budgetCard() + '</section></div></div>';
 }
 function weekGrid(){
-  const m = mondayOf(S.date), days = [0, 1, 2, 3, 4].map(i => addDays(m, i));
-  return '<div class="wgrid">' + days.map(function(d){
+  const m = mondayOf(S.date), days = (S.settings.fullWeek ? [0, 1, 2, 3, 4, 5, 6] : [0, 1, 2, 3, 4]).map(i => addDays(m, i));
+  return '<div class="wgrid' + (S.settings.fullWeek ? ' full' : '') + '">' + days.map(function(d){
     const ts = sortTasks(dayTasks(S.me, d), 'priority'), e = dayEntry(S.me, d);
     return '<section class="card wcol' + (d === TODAY ? ' today' : '') + '" data-dzdate="' + d + '"><button class="whead" data-act="openDay" data-date="' + d + '"><span>' + fmtDay(d) + '</span><span class="muted">' +
       (e && e.type === 'pto' ? 'PTO' : ts.length ? ts.length + (ts.length === 1 ? ' task' : ' tasks') : '') + '</span></button>' +
-      (ts.length ? '<ul class="tasks" data-list="wk">' + ts.map(t => taskRow(t, {plan: true})).join('') + '</ul>' : '<p class="empty">Free.</p>') + '</section>';
+      (S.settings.fullWeek
+        ? '<div class="wchips">' + ts.map(t => '<span class="mchip' + (t.done ? ' done' : '') + '"' + (t.owner === S.me && !t.done ? ' data-item="task" data-id="' + t.id + '" data-grip' : '') + ' data-act="' + (t.owner === S.me ? 'edit' : 'view') + '" data-id="' + t.id + '" title="' + esc(t.title) + '">' + esc(t.title) + '</span>').join('') + '</div>'
+        : ts.length ? '<ul class="tasks" data-list="wk">' + ts.map(t => taskRow(t, {plan: true, drag: true})).join('') + '</ul>' : '<p class="empty">Free.</p>') + '</section>';
   }).join('') + '</div>';
 }
 
@@ -1143,11 +1233,12 @@ function monthGrid(){
   let cells = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(x => '<div class="mhd">' + x + '</div>').join('');
   for (let i = 0; i < lead; i++) cells += '<div></div>';
   for (let day = 1; day <= n; day++) {
-    const ds = iso(new Date(y, m, day)), ts = dayTasks(S.me, ds), e = dayEntry(S.me, ds);
+    const ds = iso(new Date(y, m, day)), ts = sortTasks(dayTasks(S.me, ds), 'priority'), e = dayEntry(S.me, ds);
     const wk = isWeekend(ds) && !(e && e.type === 'special'), done = ts.filter(t => t.done).length;
-    cells += '<button class="mcell' + (ds === TODAY ? ' today' : '') + (wk ? ' off' : '') + '" data-act="openDay" data-date="' + ds + '" aria-label="' + esc(fmtDay(ds)) + ', ' + ts.length + ' tasks">' +
-      '<span class="mn">' + day + '</span>' + (e && e.type === 'pto' ? '<span class="mc">PTO</span>' : '') + (e && e.type === 'special' ? '<span class="mc">Working</span>' : '') +
-      (ts.length ? '<span class="mc">' + done + '/' + ts.length + '</span>' : '') + '' + '</button>';
+    const chips = ts.slice(0, 3).map(t => '<span class="mchip' + (t.done ? ' done' : '') + ((ui.sel || []).indexOf(t.id) >= 0 ? ' sel' : '') + '"' + (t.owner === S.me && !t.done ? ' data-item="task" data-id="' + t.id + '" data-grip' : '') + ' title="' + esc(t.title) + '">' + esc(t.title) + '</span>').join('');
+    cells += '<div class="mcell' + (ds === TODAY ? ' today' : '') + (wk ? ' off' : '') + '" role="button" tabindex="0" data-dzdate="' + ds + '" data-act="openDay" data-date="' + ds + '" aria-label="' + esc(fmtDay(ds)) + ', ' + ts.length + ' tasks">' +
+      '<span class="mhead"><span class="mn">' + day + '</span>' + (e && e.type === 'pto' ? '<span class="mc">PTO</span>' : e && e.type === 'special' ? '<span class="mc">Working</span>' : ts.length ? '<span class="mc">' + done + '/' + ts.length + '</span>' : '') + '</span>' +
+      chips + (ts.length > 3 ? '<span class="mc">+' + (ts.length - 3) + ' more</span>' : '') + '</div>';
   }
   return '<div class="mgrid">' + cells + '</div>';
 }
@@ -1182,7 +1273,7 @@ function openQuick(backlog, krId){
     '<div id="q-more" class="frm" style="margin-top:10px" hidden>' +
     '<label class="fld">Date<input type="date" id="q-date" data-chg="qdate"></label>' +
     '<label class="fld">Deadline<input type="date" id="q-dl"></label>' +
-    '<label class="fld">Priority<select id="q-pri">' + priOptions(2) + '</select></label>' +
+    '<label class="fld">Priority<select id="q-pri">' + priOptions(null, true) + '</select></label>' +
     '<label class="fld wide">Sub-tasks, one per line<textarea id="q-subs" rows="2"></textarea></label>' +
     '<label class="chk-row wide"><input type="checkbox" id="q-share" checked> Visible to the team</label></div>' +
     '<div class="actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Add task</button></div></form>');
@@ -1223,7 +1314,7 @@ function viewModal(t){
   const who = t.owner ? ((user(t.owner) || {}).name || '') + (t.owner === S.me ? ' (you)' : '') : 'Nobody yet';
   const subs = t.subs || [], p = t.priority || 2;
   const row = (l, v) => v ? '<div class="vrow"><span class="muted">' + l + '</span><span>' + v + '</span></div>' : '';
-  openModal('<h2>' + esc(t.title) + '</h2><div class="row" style="margin:-4px 0 10px"><span class="chip p' + p + '">' + PRI_NAME[p] + '</span>' + (t.fromLead ? '<span class="chip lead">From Team Lead</span>' : '') +
+  openModal('<h2>' + esc(t.title) + '</h2><div class="row" style="margin:-4px 0 10px"><span class="chip' + (t.priority ? ' p' + p : '') + '">' + (t.priority ? PRI_NAME[p] : 'Priority') + '</span>' + (t.fromLead ? '<span class="chip lead">From Team Lead</span>' : '') +
     '<span class="chip">' + (t.done ? 'Done' + (t.doneAt ? ' ' + esc(fmtDay(t.doneAt)) : '') : esc(t.status || 'Not started')) + '</span></div><div>' +
     row('Assigned to', esc(who)) + row('Planned for', t.date ? esc(fmtDay(t.date)) : 'Backlog, no date yet') +
     row('Deadline', t.deadline ? dueBit(t) : '') +
@@ -1374,18 +1465,19 @@ const forms = {
     const krv = $('#q-kr', f).value;
     if (!krv) { toast('Choose a key result for this task.'); $('#q-kr', f).focus(); return; }
     const date = $('#q-date', f).value || null;
-    createTask({title: title, date: date, deadline: $('#q-dl', f).value || null, priority: +$('#q-pri', f).value, krId: krv,
+    createTask({title: title, date: date, deadline: $('#q-dl', f).value || null, priority: +$('#q-pri', f).value || null, krId: krv,
       scope: $('#q-share', f).checked ? 'team' : 'personal'}, $('#q-subs', f).value);
     save(); closeModal();
     toast(date ? 'Added to ' + fmtDay(date) + '.' : 'Added to your backlog.');
     render();
   },
   quickBar: function(f){
-    const title = $('#qb-title', f).value.trim();
+    const inp0 = f.querySelector('input'), title = inp0.value.trim(), fid = inp0.id;
     if (!title) return;
-    createTask({title: title, date: f.dataset.bl ? null : S.date, deadline: null, priority: null, krId: null}, '');
+    const lid = f.dataset.lid || (f.dataset.bl && ui.blList && ui.blList !== 'all' && ui.blList !== 'inbox' && listOf(ui.blList) ? ui.blList : null);
+    createTask({title: title, date: f.dataset.bl ? null : S.date, deadline: null, priority: null, krId: null, listId: lid || null, secId: f.dataset.sid || null}, '');
     save(); render();
-    const el = $('#qb-title'); if (el) el.focus();
+    const el = document.getElementById(fid); if (el) el.focus();
   },
   editTask: function(f){
     const t = S.tasks.find(x => x.id === f.dataset.id); if (!t) return;
@@ -1441,6 +1533,11 @@ function fixOrphans(){
     t.krId = null; t.needReview = true; n++;
     if (t.done) { t.done = false; t.doneAt = null; t.note = ''; if (t.status === 'Done') t.status = 'Not started'; }
   });
+  S.tasks.forEach(function(t){
+    if (t.owner !== S.me || !t.listId || t.deleted) return;
+    if (listOf(t.listId)) return;
+    t.listId = null; t.secId = null; if (!t.done) t.listReview = true; n++;
+  });
   return n;
 }
 function render(){
@@ -1450,7 +1547,7 @@ function render(){
   const act = document.activeElement && document.activeElement.id;
   $('#tabs').innerHTML = tabsList().map(t => '<button class="tab' + (t[2] ? ' ' + t[2] : '') + '" data-act="nav" data-view="' + t[0] + '"' + (S.view === t[0] ? ' aria-current="page"' : '') + '>' + t[1] + '</button>').join('');
   document.body.classList.toggle('notlead', !!me() && !isLead());
-  if (CLOUD && me()) $('#whoami').textContent = me().name + ' (' + me().role + ')';
+  if (me()) $('#whoami').textContent = CLOUD ? me().name + ' (' + (isLead() ? 'Team lead' : 'Member') + ')' : 'Your details';
   const w = $('#who');
   w.innerHTML = S.users.map(u => '<option value="' + u.id + '"' + (u.id === S.me ? ' selected' : '') + '>' + esc(u.name) + ' (' + esc(u.role) + ')</option>').join('');
   const v = views[S.view] || views.today;
@@ -1460,13 +1557,14 @@ function render(){
   if (act) { const el = document.getElementById(act); if (el && el.focus) { try { el.focus({preventScroll: true}); } catch(e) {} } }
   if (ui.tp) refreshTp();
   if (ui.kp) refreshKp();
+  renderSelBar();
 }
 
 /* completed tasks are locked: only the checkbox (and the dropdown caret/title) respond */
 function lockedHit(e){
   const t = e.target; if (!t || !t.closest) return null;
   const li = t.closest('li.task.done, .tpwrap.done'); if (!li) return null;
-  if (t.closest('[data-chg="toggle"]') || t.closest('[data-act="tx"]') || t.closest('[data-act="closeModal"]')) return null;
+  if (t.closest('[data-chg="toggle"]') || t.closest('[data-act="tx"]') || t.closest('[data-act="closeModal"]') || t.closest('[data-act="datePop"][data-kind="plan"]')) return null;
   if (!t.closest('button, input, select, textarea, [data-act], [data-chg], [data-inp]')) return null;
   return li;
 }
@@ -1485,6 +1583,7 @@ function flashChk(li){
   }, true);
 });
 document.addEventListener('click', function(e){
+  if (Date.now() - (window.__dragEnd || 0) < 350) { e.stopPropagation(); return; }
   const pp = $('#pop');
   if (pp && !pp.hidden && !e.target.closest('#pop') && !e.target.closest('[data-act="planPop"]') && !e.target.closest('[data-act="datePop"]') && !e.target.closest('[data-act="krPop"]')) closePop();
   if (e.target.id === 'modal') { acts.closeModal(); return; }
@@ -1586,7 +1685,7 @@ function parsePri(v){
   const s = String(v || '').toLowerCase().trim();
   if (/high|urgent|^h$|^p1$|^1$/.test(s)) return 1;
   if (/low|^l$|^p4$|^4$/.test(s)) return 3;
-  return 2;
+  return s ? 2 : null;
 }
 function matchCat(v, def){
   const s = String(v || '').toLowerCase().trim();
@@ -1631,7 +1730,7 @@ function impPanel(){
   const cols = m.type === 'goals' ? ['Goal', 'Key result', 'Quarter', 'Sub-items'] : ['Title', 'Date', 'For', 'Priority'];
   const rowsHtml = items.slice(0, 5).map(i => m.type === 'goals'
     ? '<tr><td>' + esc(i.goal) + '</td><td>' + esc(i.kr) + '</td><td>Q' + i.quarter + '</td><td>' + (i.subs || []).length + '</td></tr>'
-    : '<tr><td>' + esc(i.title) + '</td><td>' + (i.date ? fmtDay(i.date) : 'Backlog') + '</td><td>' + esc((user(i.owner) || {}).name) + '</td><td>' + PRI_NAME[i.priority] + '</td></tr>').join('');
+    : '<tr><td>' + esc(i.title) + '</td><td>' + (i.date ? fmtDay(i.date) : 'Backlog') + '</td><td>' + esc((user(i.owner) || {}).name) + '</td><td>' + (PRI_NAME[i.priority] || 'Priority') + '</td></tr>').join('');
   return '<p class="muted" style="margin:0 0 8px">' + esc(m.file || 'Pasted text') + ': ' + m.data.length + ' rows. Check that each field points at the right column.</p>' +
     (m.sheets && m.sheets.length > 1 ? '<label class="fld" style="max-width:260px;margin-bottom:8px">Sheet<select data-chg="impSheet">' + m.sheets.map(s => '<option' + (s === m.sheet ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select></label>' : '') +
     '<div class="frm">' + fields.map(f => '<label class="fld">' + f[1] + (f[3] ? ' (required)' : '') + '<select data-chg="impMap" data-f="' + f[0] + '">' + opts(m.map[f[0]]) + '</select></label>').join('') + '</div>' +
@@ -1658,16 +1757,153 @@ function backlogList(u){
   const missedIds = missedTasks(u).map(t => t.id);
   return liveTasks().filter(t => t.owner === u && !t.date && !t.done && !inReview(t) && isChamp(t.catId) && !missedIds.includes(t.id));
 }
+const myLists = () => S.lists.filter(l => l.owner === S.me);
+const listOf = id => S.lists.find(l => l.id === id);
+function placeFree(id, ids, idx){
+  const t = byId(id); if (!t) return;
+  const list = ids.map(byId).filter(Boolean), prev = list[idx - 1], next = list[idx];
+  if (prev && next) t.order = ((prev.order || 0) + (next.order || 0)) / 2;
+  else if (prev) t.order = (prev.order || 0) + 1;
+  else if (next) t.order = (next.order || 0) - 1;
+}
+function listQuick(lid, sid){
+  return '<form data-form="quickBar" data-bl="1"' + (lid ? ' data-lid="' + lid + '"' : '') + (sid ? ' data-sid="' + sid + '"' : '') + ' class="qbar dull" novalidate><input id="qb-title' + (sid ? '-' + sid : '') + '" placeholder="+ Add a task" maxlength="140" autocomplete="off" aria-label="New task" style="width:100%;box-sizing:border-box;font-size:15px"></form>';
+}
+function sGrip(g){ return g.id ? '<span class="sgrip" data-sgrip="' + g.id + '" title="Drag to reorder" aria-label="Drag to reorder section">⋮⋮</span>' : ''; }
+(function(){
+  let d = null;
+  const secAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.closest('[data-dzsec]'); };
+  document.addEventListener('pointerdown', function(e){
+    const g = e.target.closest && e.target.closest('[data-sgrip]'); if (!g) return;
+    const box = g.closest('[data-dzsec]'); if (!box) return;
+    e.preventDefault(); e.stopPropagation(); d = {id: g.dataset.sgrip, list: box.dataset.dzlist, box: box, moved: false, over: null, after: false};
+    box.classList.add('sdrag');
+  }, true);
+  document.addEventListener('pointermove', function(e){
+    if (!d) return; d.moved = true;
+    $$('.sover-b,.sover-a').forEach(n => n.classList.remove('sover-b', 'sover-a'));
+    const t = secAt(e.clientX, e.clientY); d.over = null;
+    if (!t || t === d.box || t.dataset.dzlist !== d.list) return;
+    const r = t.getBoundingClientRect(), board = t.classList.contains('lcol');
+    d.after = board ? e.clientX > r.left + r.width / 2 : e.clientY > r.top + r.height / 2;
+    if (!t.dataset.dzsec) d.after = false;
+    d.over = t.dataset.dzsec || '';
+    t.classList.add(d.after ? 'sover-a' : 'sover-b');
+  });
+  document.addEventListener('pointerup', function(){
+    if (!d) return; const x = d; d = null;
+    $$('.sover-b,.sover-a,.sdrag').forEach(n => n.classList.remove('sover-b', 'sover-a', 'sdrag'));
+    if (!x.moved || x.over == null) return;
+    const l = listOf(x.list); if (!l) return;
+    const moving = l.secs.find(s => s.id === x.id), rest = l.secs.filter(s => s.id !== x.id);
+    let i = x.over === '' ? 0 : rest.findIndex(s => s.id === x.over) + (x.after ? 1 : 0);
+    if (!moving || i < 0) return;
+    rest.splice(i, 0, moving); l.secs = rest; save(); render();
+  });
+})();
+function listView(l, mine){
+  const tasks = mine.filter(t => t.listId === l.id).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const groups = [{id: '', name: 'No section'}].concat(l.secs || []);
+  const bar = '<div class="row between" style="margin:0 0 12px;flex-wrap:nowrap;gap:10px"><span class="row" style="flex-wrap:nowrap;min-width:0;gap:6px"><h2 style="margin:0;min-width:0;overflow-wrap:anywhere">' + esc(l.name) + '</h2><button type="button" class="pencil" data-act="renameList" data-id="' + l.id + '" aria-label="Rename list">' + ICO_PENCIL + '</button><button type="button" class="trashbtn" data-act="delList" data-id="' + l.id + '" aria-label="Delete list">' + ICO_TRASH + '</button></span>' +
+    '<span class="segb" role="group" aria-label="List view"><button data-act="lView" data-v="list" aria-pressed="' + (ui.lv !== 'board') + '">List</button><button data-act="lView" data-v="board" aria-pressed="' + (ui.lv === 'board') + '">Board</button></span></div>';
+  const secBtns = g => g.id ? '<span class="row" style="gap:0;flex-wrap:nowrap"><button type="button" class="pencil" data-act="renameSec" data-id="' + l.id + '" data-sec="' + g.id + '" aria-label="Rename section">' + ICO_PENCIL + '</button><button type="button" class="trashbtn" data-act="delSec" data-id="' + l.id + '" data-sec="' + g.id + '" aria-label="Delete section">' + ICO_TRASH + '</button></span>' : '';
+  const addSec = '<form data-form="addSec" data-id="' + l.id + '" class="qbar dull" novalidate><input id="ns-' + l.id + '" placeholder="+ Add section" maxlength="60" autocomplete="off" aria-label="New section" style="width:100%;box-sizing:border-box;font-size:15px"></form>';
+  if (ui.lv === 'board') {
+    return bar + '<div class="lboard">' + groups.map(function(g){
+      const ts = tasks.filter(t => (t.secId || '') === g.id);
+      return '<div class="lcol" data-dzsec="' + g.id + '" data-dzlist="' + l.id + '"><div class="row between" style="flex-wrap:nowrap;margin-bottom:4px"><h3 style="margin:0;font-size:14px">' + sGrip(g) + esc(g.name) + ' <span class="muted">' + ts.length + '</span></h3>' + secBtns(g) + '</div>' +
+        '<ul class="bcards" data-list="sec">' + ts.map(t => '<li class="bcard' + (t.priority ? ' p' + t.priority : '') + '" data-item="task" data-id="' + t.id + '" data-grip data-act="edit"><span>' + esc(t.title) + '</span>' + (t.priority ? '<span class="chip p' + t.priority + '">' + PRI_NAME[t.priority] + '</span>' : '') + '</li>').join('') + '</ul>' + listQuick(l.id, g.id) + '</div>';
+    }).join('') + '<div class="lcol lnew">' + addSec + '</div></div>';
+  }
+  return bar + groups.map(function(g){
+    const ts = tasks.filter(t => (t.secId || '') === g.id);
+    return '<section class="card main lsec" data-dzsec="' + g.id + '" data-dzlist="' + l.id + '"><div class="row between" style="margin-bottom:6px;flex-wrap:nowrap"><h3 style="margin:0">' + sGrip(g) + esc(g.name) + ' <span class="muted" style="font-weight:400">' + ts.length + '</span></h3>' + secBtns(g) + '</div>' +
+      '<ul class="tasks big" data-list="sec">' + ts.map(t => taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true, drag: true})).join('') + '</ul>' + listQuick(l.id, g.id) + '</section>';
+  }).join('') + '<section class="card main lnew">' + addSec + '</section>';
+}
 views.backlog = function(){
-  const u = S.me;
-  const mine = backlogList(u);
-  const list = sortTasks(mine, ui.sortBl);
+  const u = S.me, mine = backlogList(u), L = myLists();
+  let sel = ui.blList || 'all';
+  if (sel !== 'all' && sel !== 'inbox' && !L.some(l => l.id === sel)) sel = ui.blList = 'all';
+  const pill = (id, name, n) => '<button type="button" class="lpill" data-act="blList" data-id="' + id + '" aria-pressed="' + (sel === id) + '">' + esc(name) + ' <span class="muted">' + n + '</span></button>';
+  const pills = '<div class="lpills">' + pill('all', 'All', mine.length) + pill('inbox', 'Inbox', mine.filter(t => !t.listId).length) + L.map(l => pill(l.id, l.name, mine.filter(t => t.listId === l.id).length)).join('') + '<button type="button" class="lpill add" data-act="newList">+ New list</button></div>';
+  const l = L.find(x => x.id === sel);
+  if (l) return '<div class="datebar"><span class="row"><h2 style="margin:0">My backlog (' + mine.length + ')</h2></span></div>' + pills + listView(l, mine);
+  const shown = sel === 'inbox' ? mine.filter(t => !t.listId) : mine;
+  const list = sortTasks(shown, ui.sortBl);
   return '<div class="datebar"><span class="row"><h2 style="margin:0">My backlog (' + mine.length + ')</h2></span><span class="grow"></span>' +
-    sortSelect('sortBl') + '</div>' +
+    sortSelect('sortBl') + '</div>' + pills +
     '<section class="card main" data-dzdate="">' + (list.length ? '<ul class="tasks big" data-list="bl">' + list.map(function(t){
-      return taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true});
-    }).join('') + '</ul>' : '<p class="empty">Your backlog is empty.</p>') + quickBar(true) + '</section>';
+      return taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true, action: sel === 'all' && t.listId && listOf(t.listId) ? '<span class="muted" style="font-size:12.5px;white-space:nowrap">' + esc(listOf(t.listId).name) + '</span>' : ''});
+    }).join('') + '</ul>' : '<p class="empty">' + (sel === 'inbox' ? 'Nothing in the inbox.' : 'Your backlog is empty.') + '</p>') + quickBar(true) + '</section>';
 };
+function listPick(t){
+  const L = myLists(); if (!L.length) return '';
+  const l = t.listId ? listOf(t.listId) : null;
+  return '<label class="row" style="gap:6px"><span class="muted">List</span><select class="chipsel" data-chg="taskList" data-id="' + t.id + '"><option value="">Inbox</option>' + L.map(x => '<option value="' + x.id + '"' + (x.id === t.listId ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' +
+    (l && (l.secs || []).length ? '<label class="row" style="gap:6px"><span class="muted">Section</span><select class="chipsel" data-chg="taskSec" data-id="' + t.id + '"><option value="">No section</option>' + l.secs.map(x => '<option value="' + x.id + '"' + (x.id === t.secId ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') + '</select></label>' : '');
+}
+function rvListSel(t){
+  return '<select class="chipsel" data-chg="rvList" data-id="' + t.id + '" aria-label="Choose a list for ' + esc(t.title) + '"><option value="">Choose a list</option><option value="inbox">Inbox</option>' + myLists().map(x => '<option value="' + x.id + '">' + esc(x.name) + '</option>').join('') + '</select>';
+}
+function nameModal(title, form, val, extra){
+  openModal('<h2>' + title + '</h2><form data-form="' + form + '" ' + (extra || '') + ' novalidate><input id="nm-name" value="' + esc(val || '') + '" maxlength="60" autocomplete="off" aria-label="Name" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px 12px"><div class="actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>');
+  $('#modal').classList.add('center'); const i = $('#nm-name'); if (i) { i.focus(); i.select(); }
+}
+Object.assign(acts, {
+  blList: function(b){ ui.blList = b.dataset.id; render(); },
+  lView: function(b){ ui.lv = b.dataset.v; render(); },
+  newList: function(){ nameModal('New list', 'newList', ''); },
+  renameList: function(b){ const l = listOf(b.dataset.id); if (l) nameModal('Rename list', 'renameList', l.name, 'data-id="' + l.id + '"'); },
+  renameSec: function(b){ const l = listOf(b.dataset.id), g = l && (l.secs || []).find(x => x.id === b.dataset.sec); if (g) nameModal('Rename section', 'renameSec', g.name, 'data-id="' + l.id + '" data-sec="' + g.id + '"'); },
+  delSec: function(b){
+    const l = listOf(b.dataset.id); if (!l) return;
+    l.secs = (l.secs || []).filter(x => x.id !== b.dataset.sec);
+    S.tasks.forEach(function(t){ if (t.listId === l.id && t.secId === b.dataset.sec) t.secId = null; });
+    save(); toast('Section removed. Its tasks are in No section.'); render();
+  },
+  delList: function(b){
+    const l = listOf(b.dataset.id); if (!l) return;
+    const n = S.tasks.filter(t => t.owner === S.me && t.listId === l.id && !t.done && !t.deleted).length;
+    openModal('<h2>Delete list "' + esc(l.name) + '"?</h2><p style="margin:0 0 4px">' + (n ? n + (n === 1 ? ' task' : ' tasks') + ' inside will move to Need review so you can choose a new list. Completed tasks stay as they are.' : 'The list is empty.') + '</p>' +
+      '<div class="actions"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="button" class="btn primary" data-act="delListYes" data-id="' + l.id + '">Delete list</button></div>');
+    $('#modal').classList.add('center');
+  },
+  delListYes: function(b){
+    const l = listOf(b.dataset.id); if (!l) return;
+    let n = 0;
+    S.tasks.forEach(function(t){
+      if (t.listId !== l.id) return;
+      t.listId = null; t.secId = null;
+      if (t.owner === S.me && !t.done && !t.deleted) { t.listReview = true; n++; }
+    });
+    S.lists = S.lists.filter(x => x.id !== l.id); ui.blList = 'all';
+    closeModal(); save(); render(); toast('List deleted.' + (n ? ' ' + n + (n === 1 ? ' task is' : ' tasks are') + ' in Need review.' : ''));
+  }
+});
+Object.assign(forms, {
+  newList: function(f){
+    const name = $('#nm-name', f).value.trim(); if (!name) { toast('Add a name first.'); return; }
+    const l = {id: uid(), owner: S.me, name: name, secs: []};
+    S.lists.push(l); ui.blList = l.id; closeModal(); save(); render();
+  },
+  renameList: function(f){ const l = listOf(f.dataset.id), name = $('#nm-name', f).value.trim(); if (!l || !name) return; l.name = name; closeModal(); save(); render(); },
+  renameSec: function(f){ const l = listOf(f.dataset.id), g = l && (l.secs || []).find(x => x.id === f.dataset.sec), name = $('#nm-name', f).value.trim(); if (!g || !name) return; g.name = name; closeModal(); save(); render(); },
+  addSec: function(f){
+    const l = listOf(f.dataset.id), name = f.querySelector('input').value.trim(); if (!l || !name) return;
+    l.secs = l.secs || []; l.secs.push({id: uid(), name: name}); save(); render();
+    const i = $('#ns-' + l.id); if (i) i.focus();
+  }
+});
+Object.assign(chg, {
+  taskList: function(el){ const t = byId(el.dataset.id); if (!t || t.owner !== S.me) return; setTask(t, 'listId', el.value || null); setTask(t, 'secId', null); t.listReview = false; save(); render(); },
+  taskSec: function(el){ const t = byId(el.dataset.id); if (!t || t.owner !== S.me) return; setTask(t, 'secId', el.value || null); save(); render(); },
+  rvList: function(el){
+    const t = byId(el.dataset.id); if (!t || t.owner !== S.me || !el.value) return;
+    t.listReview = false; t.secId = null; setTask(t, 'listId', el.value === 'inbox' ? null : el.value);
+    save(); render(); toast('Done. The task is back where it belongs.');
+  }
+});
 Object.assign(acts, {
   planToday_old: function(b){
     const t = S.tasks.find(x => x.id === b.dataset.id); if (!t) return;
@@ -1695,7 +1931,7 @@ Object.assign(acts, {
           hist: [{status: i.status, at: TODAY, by: S.me}]};
         S.krs.push(kobj);
         (i.subs || []).forEach(function(sb){
-          S.tasks.push(newTask({krId: kobj.id, title: sb.title, owner: S.me, date: sb.date, priority: 2, done: sb.done, doneAt: sb.done ? (sb.date || TODAY) : null, createdBy: S.me})); nt++;
+          S.tasks.push(newTask({krId: kobj.id, title: sb.title, owner: S.me, date: sb.date, priority: null, done: sb.done, doneAt: sb.done ? (sb.date || TODAY) : null, createdBy: S.me})); nt++;
         });
         nk++;
       });
@@ -1801,7 +2037,7 @@ function personHtml(u){
   const open = st.all.filter(t => !t.done), plan = open.filter(t => t.date), back = open.filter(t => !t.date), done = st.all.filter(t => t.done);
   const sec = (l, list) => list.length ? '<div class="seclab" style="margin:12px 0 2px">' + l + ' (' + list.length + ')</div><ul class="tasks">' + rows(list) + '</ul>' : '';
   return '<div class="rvpop" style="width:min(640px,100%)"><div class="row between" style="flex-wrap:nowrap;margin-bottom:4px"><h2 style="margin:0">' + esc(u.name) + (u.id === S.me ? ' (you)' : '') + '</h2><span class="muted">' + esc(u.role) + '</span></div>' +
-    roleRow(u) + teamStatsHtml(st) + (plan.length || back.length || done.length ? sec('Planned', plan) + sec('Backlog', back) + sec('Done', done) : '<p class="empty">Nothing here.</p>') + '</div>';
+    teamStatsHtml(st) + (plan.length || back.length ? sec('Planned', plan) + sec('Backlog', back) : '<p class="empty">No open tasks.</p>') + '</div>';
 }
 function openPersonPop(id){
   const u = user(id); if (!u) return;
@@ -1889,9 +2125,8 @@ function krDetail(k){
   const open = !!(ui.kpd && ui.kpd[k.id]);
   return '<div class="krbody">' +
     '<div><h3 style="margin-top:0">Sub-items</h3>' +
-    (act.length ? '<ul class="tasks big" data-sublist>' + act.map(subTask).join('') + '</ul>' : (dn.length ? '' : '<p class="empty">No tasks yet.</p>')) +
+    (all.length ? '<ul class="tasks big" data-sublist>' + act.concat(dn).map(subTask).join('') + '</ul>' : '<p class="empty">No tasks yet.</p>') +
     '<form data-form="addSub" data-id="' + k.id + '" class="qbar dull" novalidate><input id="sub-' + k.id + '" placeholder="+ Add sub-item" maxlength="140" autocomplete="off" aria-label="New sub-item" style="width:100%;box-sizing:border-box;font-size:15px"></form>' +
-    (dn.length ? '<button type="button" class="qdone" data-act="kpDone" data-id="' + k.id + '" aria-expanded="' + (open ? 'true' : 'false') + '">' + (open ? '▾' : '▸') + ' Done <span class="muted" style="font-weight:400">' + dn.length + '</span></button>' + (open ? '<ul class="tasks big krdone" data-sublist>' + dn.map(subTask).join('') + '</ul>' : '') : '') +
     revKrHtml(k) + '</div></div>';
 }
 function fmtRev(ms){ const d = new Date(ms); return d.getDate() + ' ' + d.toLocaleDateString('en-GB', {month: 'short'}) + ' ' + d.getFullYear(); }
@@ -1966,19 +2201,20 @@ function kanbanView(){
   const ks = S.krs.filter(k => !k.deleted && goals.some(g => g.id === k.goalId));
   const head = '<div class="datebar"><span class="segb" role="group" aria-label="Cards"><button data-act="kBy" data-by="kr" aria-pressed="' + (by === 'kr') + '">Key results</button><button data-act="kBy" data-by="quarter" aria-pressed="' + (by === 'quarter') + '">Quarter</button></span>' +
     '<span class="muted">Drag a card to another column to change its ' + (by === 'quarter' ? 'quarter' : 'status') + '.</span></div>';
+  const shortT = (t, n) => { const w = String(t || '').split(/\s+/); return w.length > n ? w.slice(0, n).join(' ') + '…' : w.join(' '); };
   const card = (kind, k, sub) => '<div class="kcard" data-item="' + kind + '" data-id="' + k.id + '"><button type="button" class="grip" data-grip aria-label="Drag ' + esc(k.title) + ' to another column">⋮⋮</button><div style="min-width:0"><button type="button" class="ttitle" data-act="toggleKr" data-id="' + k.id + '">' + esc(k.title) + '</button><div class="muted" style="font-size:12.5px;margin-top:4px">' + sub + '</div></div><span class="kact"><button type="button" class="pencil" data-act="renameKr" data-id="' + k.id + '" aria-label="Rename key result">' + ICO_PENCIL + '</button><button type="button" class="trashbtn" data-act="delKr" data-id="' + k.id + '" aria-label="Delete key result">' + ICO_TRASH + '</button></span></div>';
   if (by === 'quarter') {
     const qs = [0, 1, 2, 3, 4];
     return head + '<div class="kb">' + qs.map(function(q){
       const cs = ks.filter(k => (k.quarter || 0) === q);
       return '<div class="kcol" data-sq="' + q + '"><h3' + (q ? '' : ' class="np"') + '>' + (q ? 'Q' + q : 'Not planned') + ' <span class="muted">' + cs.length + '</span></h3>' +
-        cs.map(k => card('kq', k, esc((goal(k.goalId) || {}).title) + ' · ' + esc(k.status) + ' · ' + krProgress(k).done + '/' + krProgress(k).n)).join('') + '</div>';
+        cs.map(k => card('kq', k, esc(shortT((goal(k.goalId) || {}).title, 4)) + ' · ' + esc(k.status) + ' · ' + krProgress(k).done + '/' + krProgress(k).n)).join('') + '</div>';
     }).join('') + '</div>';
   }
   return head + '<div class="kb">' + STATUSES.map(function(s){
     const cs = ks.filter(k => k.status === s);
     return '<div class="kcol" data-sz="' + s + '"><h3>' + s + ' <span class="muted">' + cs.length + '</span></h3>' +
-      cs.map(k => '<div class="kcard" data-item="status" data-id="kr|' + k.id + '"><button type="button" class="grip" data-grip aria-label="Drag ' + esc(k.title) + ' to another column">⋮⋮</button><div style="min-width:0"><button type="button" class="ttitle" data-act="toggleKr" data-id="' + k.id + '">' + esc(k.title) + '</button><div class="muted" style="font-size:12.5px;margin-top:4px">' + esc((goal(k.goalId) || {}).title) + ' · ' + qLabel(k.quarter) + ' · ' + krProgress(k).done + '/' + krProgress(k).n + '</div></div><span class="kact"><button type="button" class="pencil" data-act="renameKr" data-id="' + k.id + '" aria-label="Rename key result">' + ICO_PENCIL + '</button><button type="button" class="trashbtn" data-act="delKr" data-id="' + k.id + '" aria-label="Delete key result">' + ICO_TRASH + '</button></span></div>').join('') + '</div>';
+      cs.map(k => '<div class="kcard" data-item="status" data-id="kr|' + k.id + '"><button type="button" class="grip" data-grip aria-label="Drag ' + esc(k.title) + ' to another column">⋮⋮</button><div style="min-width:0"><button type="button" class="ttitle" data-act="toggleKr" data-id="' + k.id + '">' + esc(k.title) + '</button><div class="muted" style="font-size:12.5px;margin-top:4px">' + esc(shortT((goal(k.goalId) || {}).title, 4)) + ' · ' + qLabel(k.quarter) + ' · ' + krProgress(k).done + '/' + krProgress(k).n + '</div></div><span class="kact"><button type="button" class="pencil" data-act="renameKr" data-id="' + k.id + '" aria-label="Rename key result">' + ICO_PENCIL + '</button><button type="button" class="trashbtn" data-act="delKr" data-id="' + k.id + '" aria-label="Delete key result">' + ICO_TRASH + '</button></span></div>').join('') + '</div>';
   }).join('') + '</div>';
 }
 function reviewText(year, per){
@@ -2031,15 +2267,15 @@ views.review = function(){
     return taskRow(t, {readonly: true, nocheck: true, action: (t.date ? '<span class="muted" style="font-size:12.5px;margin-right:8px">' + esc(fmtDay(t.date)) + '</span>' : '') + asgInBtn(t)});
   }).join('') + '</ul></section>' : '';
   if (!list.length) return asg;
-  return asg + '<section class="card" style="margin-top:28px"><div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><h2 style="margin:0 0 4px;color:var(--warn)">Need review (' + list.length + ')</h2><button type="button" class="trashbtn rvdel" data-act="delReview" aria-label="Delete all tasks in Need review"><span>Delete all</span>' + ICO_TRASH + '</button></div><p class="muted" style="margin:0 0 10px">These tasks lost their goal because it was deleted. Choose a new goal for each one and it goes back to where it was.</p>' +
-    (list.length ? '<ul class="tasks big">' + list.map(t => taskRow(t, {plan: true})).join('') + '</ul>' : '<p class="empty">Nothing to review.</p>') + '</section>';
+  return asg + '<section class="card" style="margin-top:28px"><div class="row between" style="flex-wrap:nowrap;align-items:flex-start"><h2 style="margin:0 0 4px;color:var(--warn)">Need review (' + list.length + ')</h2><button type="button" class="trashbtn rvdel" data-act="delReview" aria-label="Delete all tasks in Need review"><span>Delete all</span>' + ICO_TRASH + '</button></div><p class="muted" style="margin:0 0 10px">These tasks lost their goal or their list because it was deleted. Choose a new goal or list for each one and it goes back to where it was.</p>' +
+    (list.length ? '<ul class="tasks big">' + list.map(t => taskRow(t, {plan: true, action: t.listReview ? rvListSel(t) : ''})).join('') + '</ul>' : '<p class="empty">Nothing to review.</p>') + '</section>';
 };
 views.goals = function(){
   const year = curYear(), tab = ui.gTab || 'board';
   const years = Array.from(new Set(S.goals.map(g => g.year).concat([parseISO(TODAY).getFullYear()]))).sort();
   const gs = S.goals.filter(g => g.year === year && !g.deleted && !g.archived);
   const head = '<div class="datebar"><select id="g-year" class="plain" data-chg="gyear" aria-label="Year">' + years.map(y => '<option' + (y === year ? ' selected' : '') + '>' + y + '</option>').join('') + '</select>' +
-    '<span class="segb" role="group" aria-label="Goals view">' + [['board', 'Board'], ['kanban', 'Kanban'], ['quarter', 'Quarter']].map(o => '<button data-act="gTab" data-tab="' + o[0] + '" aria-pressed="' + (tab === o[0]) + '">' + o[1] + '</button>').join('') + '</span><span class="grow"></span>' +
+    '<span class="segb" role="group" aria-label="Goals view">' + [['board', 'All'], ['kanban', 'Kanban'], ['quarter', 'Quarter']].map(o => '<button data-act="gTab" data-tab="' + o[0] + '" aria-pressed="' + (tab === o[0]) + '">' + o[1] + '</button>').join('') + '</span><span class="grow"></span>' +
     '<button type="button" class="btn rev revbig" data-act="openAllRev" data-year="' + year + '">Review ' + revAllKrs(year).filter(hasRev).length + '/' + revAllKrs(year).length + '</button></div>';
   if (tab === 'review') return head + reviewCard(year);
   if (tab === 'kanban') return head + kanbanView();
@@ -2320,7 +2556,7 @@ function weekDays(m){
   const d = [0, 1, 2, 3, 4].map(i => addDays(m, i));
   [5, 6].forEach(function(i){
     const ds = addDays(m, i);
-    if (S.users.some(u => { const e = dayEntry(u.id, ds); return e && e.type === 'special'; })) d.push(ds);
+    if (S.settings.fullWeek || S.users.some(u => { const e = dayEntry(u.id, ds); return e && e.type === 'special'; })) d.push(ds);
   });
   return d;
 }
@@ -2436,7 +2672,7 @@ function openAssign(userId, date){
     '<label class="fld">Assign to<select id="as-to">' + S.users.map(u => '<option value="' + u.id + '"' + (u.id === userId ? ' selected' : '') + '>' + esc(u.name) + '</option>').join('') + '</select></label>' +
     '<label class="fld">Date<input type="date" id="as-date" value="' + esc(date || '') + '"></label>' +
     '<label class="fld">Deadline<input type="date" id="as-dl"></label>' +
-    '<label class="fld">Priority<select id="as-pri">' + priOptions(2) + '</select></label>' +
+    '<label class="fld">Priority<select id="as-pri">' + priOptions(null, true) + '</select></label>' +
     '<label class="fld wide">Notes (optional)<textarea id="as-desc" rows="2"></textarea></label>' +
     '<p class="muted wide" style="margin:0;font-size:12.5px">Without a date the task goes to the person\'s backlog.</p>' +
     '<div class="wide actions" style="display:flex;gap:8px;justify-content:flex-end"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Assign</button></div></form>');
@@ -2483,7 +2719,7 @@ Object.assign(forms, {
     const krv = $('#as-kr', f).value; if (!krv) { toast('Choose a key result for this task.'); $('#as-kr', f).focus(); return; }
     const to = $('#as-to', f).value || null, date = $('#as-date', f).value || null;
     S.tasks.push(newTask({deadline: $('#as-dl', f).value || null, title: title, owner: to, scope: 'team', fromLead: !!to && to !== S.me, createdBy: S.me, date: to ? date : null,
-      priority: +$('#as-pri', f).value, desc: $('#as-desc', f).value.trim(), krId: krv}));
+      priority: +$('#as-pri', f).value || null, desc: $('#as-desc', f).value.trim(), krId: krv}));
     save(); closeModal();
     toast(to ? 'Assigned to ' + user(to).name + (date ? ' for ' + fmtDay(date) + '.' : '. It is in their backlog.') : 'Task added.'); render();
   }
@@ -2535,16 +2771,18 @@ views.settings = function(){
   const ch = S.changes.slice(0, 15), tr = trashItems(), st = ptoStats(me());
   const my = '<div class="sgrid">' +
     '<section class="card side">' + scopeHead('Appearance', 'Only you') + '<div class="frm"><label class="fld">Theme<select id="s-theme" data-chg="theme">' + [['auto', 'Match device'], ['light', 'Light'], ['dark', 'Dark']].map(o => '<option value="' + o[0] + '"' + (S.theme === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select></label>' +
+    '<label class="fld">Week view<select id="s-week" data-chg="weekMode"><option value="work"' + (S.settings.fullWeek ? '' : ' selected') + '>Workdays (Mon to Fri)</option><option value="full"' + (S.settings.fullWeek ? ' selected' : '') + '>Full week (Mon to Sun)</option></select></label>' +
     '<label class="fld">Accent color (default is gray)<select id="s-acc" data-chg="accent">' + ACCENTS.map(a => '<option value="' + a + '"' + (S.accent === a ? ' selected' : '') + '>' + a[0].toUpperCase() + a.slice(1) + '</option>').join('') + '</select></label></div></section>' +
     importCard() +
     '<section class="card side">' + scopeHead('Your data', 'Only you') + '<p class="muted" style="margin:0 0 10px">Export your own tasks, reflections and goals. In the real version the team also gets a daily encrypted backup.</p>' +
     '<div class="row"><button class="btn" data-act="exportJson">Copy as JSON</button><button class="btn" data-act="exportCsv">Copy tasks as CSV</button>' + (CLOUD && isLead() ? '<button class="btn" data-act="teamBackup">Download team backup</button>' : '') + '</div></section>' + '</div>';
 
-  const trashCard = '<section class="card trashcard"><div class="row between" style="flex-wrap:nowrap"><span class="row" style="flex-wrap:nowrap"><span class="trashico">' + ICO_TRASH + '</span><span><strong style="font-size:16px">Trash</strong><span class="muted" style="display:block;font-size:13px">' + (tr.length ? tr.length + (tr.length === 1 ? ' deleted item' : ' deleted items') + ' kept for 30 days' : 'Nothing deleted') + '</span></span></span><button type="button" class="btn" data-act="openTrash">Open</button></div></section>';
+  const trashCard = '<section class="card side trashcard" style="margin-top:28px">' + scopeHead('Trash', 'Only you') + '<div class="row between" style="flex-wrap:nowrap;gap:12px"><span class="muted" style="font-size:13.5px">' + (tr.length ? tr.length + (tr.length === 1 ? ' deleted item' : ' deleted items') + ' kept for 30 days. You can restore them.' : 'Nothing deleted. Deleted items stay here for 30 days.') + '</span><button type="button" class="btn" data-act="openTrash">Open</button></div></section>';
   const codeCard = isLead() ? '<section class="card side" style="margin-bottom:6px"><div class="row between" style="flex-wrap:nowrap;gap:12px"><span><strong style="font-size:16px">Team invite code</strong><span class="muted" style="display:block;font-size:13px">New people enter this when they create an account. They join as members.</span><code class="invcode">' + esc(S.teamCode) + '</code></span><span class="row" style="flex-wrap:nowrap;gap:6px"><button type="button" class="btn small" data-act="copyCode">Copy</button><button type="button" class="btn small quiet" data-act="newCode">New code</button></span></div></section>' : '';
-  return trashCard + codeCard + '<h2 class="sect">My settings</h2><p class="muted sectsub">Only you see and change these.</p>' + my +
+  return '<h2 class="sect" style="margin-top:8px">My settings</h2><p class="muted sectsub">Only you see and change these.</p>' + my +
+    (isLead() ? '<h2 class="sect">Team</h2><p class="muted sectsub">Only team leads see this. People appear here after they create an account with your invite code.</p>' + codeCard + teamCard() : '') +
     (CLOUD ? '' : '<h2 class="sect">This browser</h2><section class="card side">' + scopeHead('Demo', 'This browser only') + '<p class="muted" style="margin:0 0 10px">Brings back the original sample team and data.</p>' +
-    (ui.confirmReset ? '<div class="row"><span>Reset everything?</span><button class="btn small primary" data-act="resetYes">Yes, reset</button><button class="btn small" data-act="resetNo">Cancel</button></div>' : '<button class="btn" data-act="resetAsk">Reset demo data</button>') + '</section>');
+    (ui.confirmReset ? '<div class="row"><span>Reset everything?</span><button class="btn small primary" data-act="resetYes">Yes, reset</button><button class="btn small" data-act="resetNo">Cancel</button></div>' : '<button class="btn" data-act="resetAsk">Reset demo data</button>') + '</section>') + trashCard;
 };
 Object.assign(acts, {
   archCat: function(b){
@@ -2614,6 +2852,7 @@ Object.assign(acts, {
 Object.assign(chg, {
   theme: function(el){ S.theme = el.value; save(); applyTheme(); },
   accent: function(el){ S.accent = el.value; save(); applyTheme(); },
+  weekMode: function(el){ S.settings.fullWeek = el.value === 'full'; save(); render(); },
   fcCat: function(el){ S.settings.forecastName = el.value; save(); }
 });
 Object.assign(inp, {
@@ -2765,7 +3004,7 @@ function listItems(ul, kind, skipId){ return Array.from(ul.children).filter(li =
 function dropInfo(d, x, y){
   const el = document.elementFromPoint(x, y); if (!el) return null;
   if (d.kind === 'task') {
-    const zone = el.closest('[data-dzdate]'); if (!zone) return null;
+    const zone = el.closest('[data-dzdate],[data-dzsec]'); if (!zone) return null;
     const ul = zone.querySelector('ul[data-list]'), info = {zone: zone, ul: ul, idx: 0};
     if (ul) {
       const lis = listItems(ul, 'task', d.id);
@@ -2829,14 +3068,25 @@ function finishDrag(cancel){
   const d = drag; drag = null; if (!d) return;
   clearInterval(d.timer);
   if (!d.on) return;
+  window.__dragEnd = Date.now();
   d.ghost.remove(); d.el.classList.remove('dragging'); document.body.classList.remove('is-dragging'); clearMarks();
   if (cancel || !d.target) return;
   const info = d.target;
   if (d.kind === 'task') {
     const t = byId(d.id); if (!t) return;
+    if ('dzsec' in info.zone.dataset) {
+      const lid = info.zone.dataset.dzlist || null, sid = info.zone.dataset.dzsec || null;
+      setTask(t, 'listId', lid); setTask(t, 'secId', sid); t.listReview = false;
+      if (info.ul) placeFree(t.id, listItems(info.ul, 'task', t.id).map(li => li.dataset.id), info.idx);
+      save(); render(); return;
+    }
     let changed = false, hint = false;
     const zd = info.zone.dataset.dzdate;
     if (zd && zd !== (t.date || '')) { if (t.date) t.resched += 1; setTask(t, 'date', zd); changed = true; }
+    if (zd && (ui.sel || []).length > 1 && ui.sel.indexOf(t.id) >= 0) {
+      ui.sel.forEach(function(id){ const o = id === t.id ? null : byId(id); if (o && o.owner === S.me && !o.done && zd !== (o.date || '')) { if (o.date) o.resched += 1; setTask(o, 'date', zd); changed = true; } });
+      ui.sel = [];
+    }
     if (info.ul) {
       const ids = listItems(info.ul, 'task', t.id).map(li => li.dataset.id);
       const cur = d.el.parentNode === info.ul ? Array.from(info.ul.children).indexOf(d.el) : -1;
@@ -2912,6 +3162,153 @@ document.addEventListener('keydown', function(e){
   if (r.clamped) toast(HINT);
 });
 
+
+/* ---------- centered key result picker (replaces the browser dropdown, which gets cropped on Windows) ---------- */
+function closeKrPicker(){ const k = $('#kpick'); if (k) k.remove(); }
+function openKrPicker(sel){
+  closeKrPicker();
+  const cur = sel.value, kids = Array.from(sel.children);
+  let html = '';
+  kids.forEach(function(c){
+    if (c.tagName === 'OPTGROUP') html += '<div class="kpg">' + esc(c.label) + '</div>' + Array.from(c.children).map(o => '<button type="button" class="kpo' + (o.value === cur ? ' on' : '') + '" data-v="' + esc(o.value) + '">' + esc(o.textContent) + '</button>').join('');
+    else html += '<button type="button" class="kpo none' + (c.value === cur ? ' on' : '') + '" data-v="' + esc(c.value) + '">' + esc(c.textContent) + '</button>';
+  });
+  const w = document.createElement('div'); w.id = 'kpick'; w.className = 'kpick';
+  w.innerHTML = '<div class="kpbox" role="dialog" aria-label="Choose a key result"><input class="kpsearch" id="kp-q" placeholder="Search key results" autocomplete="off"><div class="kplist">' + html + '</div></div>';
+  document.body.appendChild(w);
+  window.__kpSel = sel;
+  const q = $('#kp-q'); if (q) q.focus();
+}
+document.addEventListener('mousedown', function(e){
+  const sel = e.target.closest && e.target.closest('select'); if (!sel || !sel.querySelector('optgroup') || sel.disabled) return;
+  e.preventDefault(); openKrPicker(sel);
+}, true);
+document.addEventListener('keydown', function(e){
+  if ($('#kpick')) {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeKrPicker(); }
+    return;
+  }
+  const sel = e.target && e.target.tagName === 'SELECT' ? e.target : null;
+  if (sel && sel.querySelector('optgroup') && (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown' || e.key === 'ArrowUp')) { e.preventDefault(); openKrPicker(sel); }
+}, true);
+document.addEventListener('click', function(e){
+  const k = $('#kpick'); if (!k) return;
+  const o = e.target.closest('.kpo');
+  if (o) { const sel = window.__kpSel; closeKrPicker(); if (sel) { sel.value = o.dataset.v; sel.dispatchEvent(new Event('change', {bubbles: true})); try { sel.focus({preventScroll: true}); } catch(x) {} } e.stopPropagation(); return; }
+  if (e.target === k) { closeKrPicker(); e.stopPropagation(); }
+}, true);
+document.addEventListener('input', function(e){
+  if (e.target.id !== 'kp-q') return;
+  const q = e.target.value.trim().toLowerCase();
+  const list = $('#kpick .kplist'); if (!list) return;
+  let group = null, any = false;
+  Array.from(list.children).forEach(function(c){
+    if (c.classList.contains('kpg')) { group = c; c.hidden = !!q; return; }
+    const hit = !q || c.textContent.toLowerCase().indexOf(q) >= 0 || (group && group.textContent.toLowerCase().indexOf(q) >= 0);
+    c.hidden = !hit; if (hit && group) group.hidden = false;
+  });
+});
+
+/* ---------- multi-select: Ctrl/Shift click, or drag a box on empty space ---------- */
+const selOk = t => t && t.owner === S.me && !t.done && !t.deleted && !asgLocked(t);
+function renderSelBar(){
+  const key = S.view + '|' + (ui.span || '');
+  if (ui.selKey !== key) { ui.selKey = key; ui.sel = []; }
+  ui.sel = (ui.sel || []).filter(id => selOk(byId(id)));
+  const el = $('#selbar'); if (!el) return;
+  if (!ui.sel.length || !$('#modal').hidden) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = '<span><b>' + ui.sel.length + '</b> selected</span>' +
+    '<span class="selpick btn small">Plan<input type="date" data-chg="selPlan" aria-label="Plan the selected tasks for a date"></span>' +
+    '<span class="selpick btn small">Deadline<input type="date" data-chg="selDl" aria-label="Set a deadline on the selected tasks"></span>' +
+    '<select class="btn small selsel" data-chg="selPri" aria-label="Set priority on the selected tasks"><option value="">Priority</option><option value="1">High</option><option value="2">Medium</option><option value="3">Low</option></select>' +
+    '<select class="btn small selsel" data-chg="selGoal" aria-label="Set a key result on the selected tasks">' + krOptions('', false).replace('No goal link yet', 'Goal') + '</select>' +
+    '<button type="button" class="btn small selred" data-act="selDel">Delete</button>';
+}
+function selEach(fn, msg){
+  let n = 0; ui.sel.forEach(function(id){ const t = byId(id); if (selOk(t)) { fn(t); n++; } });
+  save(); render(); toast(n + (n === 1 ? ' task' : ' tasks') + ' ' + msg);
+}
+Object.assign(acts, {
+  saveNow: function(){ const el = $('#savest'); if (el && el.dataset.s === 'error') { if (CLOUD) flush(); else save(); } },
+  selDel: function(){
+    let n = 0; ui.sel.forEach(function(id){ const t = byId(id); if (selOk(t)) { t.deleted = Date.now(); n++; } });
+    ui.sel = []; save(); render(); toast(n + (n === 1 ? ' task' : ' tasks') + ' moved to trash. You can restore them in Settings for 30 days.');
+  }
+});
+Object.assign(chg, {
+  selPlan: function(el){ const d = el.value; if (!d || !okDate(d)) return; selEach(function(t){ if (t.date && t.date !== d) t.resched += 1; setTask(t, 'date', d); }, 'planned for ' + fmtDay(d) + '.'); },
+  selDl: function(el){ const d = el.value; if (!d || !okDate(d)) return; selEach(function(t){ setTask(t, 'deadline', d); }, 'got a deadline.'); },
+  selPri: function(el){ const v = +el.value; if (!v) return; selEach(function(t){ setTask(t, 'priority', v); }, 'set to ' + PRI_NAME[v] + ' priority.'); },
+  selGoal: function(el){ const v = el.value; if (!v) return; selEach(function(t){ setTask(t, 'krId', v); t.needReview = false; ui.lastKr = v; }, 'linked to a key result.'); }
+});
+document.addEventListener('click', function(e){
+  const t = e.target;
+  if (t.closest && t.closest('[data-act="selDate"]')) return;
+  const sp = t.closest && t.closest('.selpick'); if (sp) { const i = sp.querySelector('input'); try { i.showPicker(); } catch(err) {} }
+}, true);
+document.addEventListener('click', function(e){
+  if (!ui.sel || !ui.sel.length) return;
+  if (e.target.closest('#selbar')) return;
+  if ((e.ctrlKey || e.metaKey || e.shiftKey) && e.target.closest('li.task')) return;
+  if (Date.now() - (window.__dragEnd || 0) < 350) return;
+  setTimeout(function(){ if (ui.sel.length) { ui.sel = []; render(); } }, 0);
+}, true);
+document.addEventListener('click', function(e){
+  if (!(e.ctrlKey || e.metaKey || e.shiftKey)) return;
+  if (e.target.closest('#modal') || !e.target.closest('#main')) return;
+  const li = e.target.closest('li.task[data-item="task"]'); if (!li || !selOk(byId(li.dataset.id))) return;
+  e.preventDefault(); e.stopPropagation();
+  const id = li.dataset.id, ul = li.closest('ul');
+  if (e.shiftKey && ui.selAnchor && ul) {
+    const ids = Array.from(ul.querySelectorAll(':scope > li.task[data-item="task"]')).map(x => x.dataset.id);
+    const a = ids.indexOf(ui.selAnchor), b = ids.indexOf(id);
+    if (a >= 0 && b >= 0) { ids.slice(Math.min(a, b), Math.max(a, b) + 1).forEach(x => { if (selOk(byId(x)) && ui.sel.indexOf(x) < 0) ui.sel.push(x); }); render(); return; }
+  }
+  const i = ui.sel.indexOf(id);
+  if (i >= 0) ui.sel.splice(i, 1); else { ui.sel.push(id); ui.selAnchor = id; }
+  render();
+}, true);
+let mq = null;
+document.addEventListener('pointerdown', function(e){
+  if (e.button !== 0 || e.pointerType === 'touch' || drag) return;
+  if (!$('#modal').hidden || !e.target.closest('#main')) return;
+  if (e.target.closest('button, input, select, textarea, a, label, summary, form, [data-grip], [data-act], [data-chg], .pop')) return;
+  if (!document.querySelector('#main li.task[data-item="task"]')) return;
+  mq = {x0: e.clientX, y0: e.clientY, on: false, add: e.shiftKey || e.ctrlKey || e.metaKey, base: (ui.sel || []).slice(), box: null, hit: []};
+});
+document.addEventListener('pointermove', function(e){
+  if (!mq) return;
+  if (!mq.on) {
+    if (Math.hypot(e.clientX - mq.x0, e.clientY - mq.y0) < 6) return;
+    mq.on = true; mq.box = document.createElement('div'); mq.box.className = 'marquee'; document.body.appendChild(mq.box); document.body.classList.add('marq');
+  }
+  const x1 = Math.min(mq.x0, e.clientX), y1 = Math.min(mq.y0, e.clientY), x2 = Math.max(mq.x0, e.clientX), y2 = Math.max(mq.y0, e.clientY);
+  Object.assign(mq.box.style, {left: x1 + 'px', top: y1 + 'px', width: (x2 - x1) + 'px', height: (y2 - y1) + 'px'});
+  mq.hit = [];
+  document.querySelectorAll('#main li.task[data-item="task"]').forEach(function(li){
+    const r = li.getBoundingClientRect(), on = r.right > x1 && r.left < x2 && r.bottom > y1 && r.top < y2 && selOk(byId(li.dataset.id));
+    li.classList.toggle('sel', on || (mq.add && mq.base.indexOf(li.dataset.id) >= 0));
+    if (on) mq.hit.push(li.dataset.id);
+  });
+});
+function endMq(cancel){
+  const m = mq; mq = null; if (!m) return;
+  if (m.box) m.box.remove();
+  document.body.classList.remove('marq');
+  if (m.on) {
+    window.__dragEnd = Date.now();
+    if (cancel) { render(); return; }
+    ui.sel = m.add ? m.base.concat(m.hit.filter(x => m.base.indexOf(x) < 0)) : m.hit;
+    ui.selAnchor = m.hit[0] || null; render();
+  } else if (!m.add && ui.sel.length) { ui.sel = []; render(); }
+}
+document.addEventListener('pointerup', function(){ endMq(false); });
+document.addEventListener('pointercancel', function(){ endMq(true); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && mq) { endMq(true); return; }
+  if (e.key === 'Escape' && ui.sel && ui.sel.length && $('#modal').hidden) { ui.sel = []; render(); }
+});
 
 /* ---------- sub-tasks on rows, reorder helpers ---------- */
 function placeArr(arr, id, targetId, after){
@@ -2992,7 +3389,7 @@ const LOCAL_KEY = 'sterling-local';
 function emptyState(){
   let loc = {}; try { loc = JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}') || {}; } catch(e) {}
   return {v: 6, me: null, view: 'today', date: TODAY, theme: loc.theme || 'auto', accent: loc.accent || 'gray', users: [], categories: [], settings: {overdueDays: 3, poolDays: 2},
-    plans: {}, days: {}, forecast: {}, tasks: [], goals: [], krs: [], categories: [], otherCats: [], reflections: [], reviews: {}, peerRev: {}, changes: [], st2: 1, kd1: 1, dp1: 1, signedIn: false, teamCode: ''};
+    plans: {}, days: {}, forecast: {}, tasks: [], goals: [], krs: [], lists: [], categories: [], otherCats: [], reflections: [], reviews: {}, peerRev: {}, changes: [], st2: 1, kd1: 1, dp1: 1, signedIn: false, teamCode: ''};
 }
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const isUuid = v => typeof v === 'string' && UUID_RE.test(v);
@@ -3010,7 +3407,7 @@ async function fetchAll(table){
 }
 function profileToUser(p, prefs){
   const pr = prefs[p.id] || {};
-  const u = {id: p.id, name: p.name, email: p.email, role: p.role === 'lead' ? 'Team lead' : (p.level || 'Member'), level: p.level || null, sort: p.sort || 0};
+  const u = {id: p.id, name: p.name, email: p.email, role: p.role === 'lead' ? 'Team lead' : (p.level || 'Member'), level: p.level || null, position: p.level || '', sort: p.sort || 0};
   u.pto = pr.pto || (p.role === 'lead' ? 25 : 20);
   if (pr.view) u.view = pr.view;
   return u;
@@ -3048,6 +3445,8 @@ async function hydrateData(){
     if (r.owner_id === cloud.uid) n.categories.push(c); else n.otherCats.push(c);
   });
   n.categories.sort(byOrd);
+  (by.list || []).forEach(function(r){ if (r.owner_id === cloud.uid) n.lists.push(Object.assign({secs: []}, r.data, {id: r.id, owner: S.me || cloud.uid})); });
+  n.lists.sort(byOrd);
   (by.plan || []).forEach(r => { n.plans[r.id] = r.data; });
   (by.day || []).forEach(r => { n.days[r.id] = r.data; });
   (by.reflection || []).forEach(r => n.reflections.push(Object.assign({}, r.data, {id: r.id})));
@@ -3093,6 +3492,7 @@ function collect(){
     if (cloud.meta['krme|' + key] || !blank(d)) put('krme', key, S.me, d);
   });
   S.categories.forEach((c, i) => put('category', c.id, S.me, Object.assign({}, c, {ord: i})));
+  S.lists.forEach((l, i) => put('list', l.id, S.me, Object.assign({}, l, {ord: i})));
   Object.keys(S.plans).forEach(function(k){ const o = k.split('|')[0]; if (isUuid(o)) put('plan', k, o, S.plans[k]); });
   Object.keys(S.days).forEach(function(k){ const o = k.split('|')[0]; if (isUuid(o)) put('day', k, o, S.days[k]); });
   S.reflections.forEach(function(r){ if (r.userId === S.me) put('reflection', r.id, S.me, r); });
@@ -3154,6 +3554,7 @@ async function flush(){
     }
   } catch(e) { failed = e; }
   cloud.busy = false;
+  if (failed) setSave('error'); else if (!cloud.dirty && !cloud.timer) setSave('saved');
   if (failed) {
     toast('Some changes could not be saved: ' + (failed.message || 'unknown error') + '. Reloading your data.');
     try { await hydrateData(); render(); } catch(e) {}
@@ -3164,7 +3565,7 @@ async function flush(){
 function cloudSave(){
   try { localStorage.setItem(LOCAL_KEY, JSON.stringify({theme: S.theme, accent: S.accent})); } catch(e) {}
   clearTimeout(cloud.timer);
-  cloud.timer = setTimeout(flush, 500);
+  cloud.timer = setTimeout(function(){ cloud.timer = null; flush(); }, 500);
 }
 async function refreshCloud(){
   if (!CLOUD || !SB || !S.signedIn || cloud.busy || cloud.timer && cloud.dirty) return;
@@ -3197,8 +3598,11 @@ async function startCloud(){
   if (!window.supabase) { try { await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js'); } catch(e) {} }
   if (!window.supabase) { $('#auth').hidden = false; $('#auth').innerHTML = '<div class="authbox"><p class="autherr">Could not load the sign-in library. Check your connection and reload.</p></div>'; return; }
   SB = window.supabase.createClient(CFG.url, CFG.key, {auth: {persistSession: true, autoRefreshToken: true}});
+  const recovering = /type=recovery/.test(location.hash || '');
+  SB.auth.onAuthStateChange(function(ev){ if (ev === 'PASSWORD_RECOVERY') { ui.authTab = 'newpw'; ui.authErr = ''; S.signedIn = false; showAuth(); } });
   const sess = (await SB.auth.getSession()).data.session;
-  if (sess) { await enterCloud(); } else showAuth();
+  if (recovering) { ui.authTab = 'newpw'; showAuth(); }
+  else if (sess) { await enterCloud(); } else showAuth();
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) refreshCloud(); });
   setInterval(refreshCloud, 120000);
 }
@@ -3209,17 +3613,27 @@ const emailOf = u => (u.email || (u.name.toLowerCase() + '@demo.team'));
 ui.authTab = 'in'; ui.authErr = '';
 function authHtml(){
   const inTab = ui.authTab === 'in';
+  if (ui.authTab === 'reset') return '<div class="authbox"><div class="brand" role="img" aria-label="Sterling">S' + $('.brand svg').outerHTML + 'erling<span class="dot"></span></div><p class="tag">Quality, scheduled.</p><div class="authcard"><h2 style="margin:0 0 6px;font-size:17px">Reset your password</h2>' +
+    '<form class="frm" data-form="resetPw" novalidate><label class="fld">Email<input id="au-e" type="email" autocomplete="username" placeholder="you@company.com"></label>' +
+    (ui.authErr ? '<p class="autherr" role="alert">' + esc(ui.authErr) + '</p>' : '') + (ui.authInfo ? '<p class="authok" role="status">' + esc(ui.authInfo) + '</p>' : '') +
+    '<button class="btn primary" type="submit">Send reset link</button><button type="button" class="linklike muted" data-act="authTab" data-tab="in" style="justify-self:start;font-size:13px">Back to sign in</button></form></div></div>';
+  if (ui.authTab === 'newpw') return '<div class="authbox"><div class="brand" role="img" aria-label="Sterling">S' + $('.brand svg').outerHTML + 'erling<span class="dot"></span></div><p class="tag">Quality, scheduled.</p><div class="authcard"><h2 style="margin:0 0 6px;font-size:17px">Choose a new password</h2>' +
+    '<form class="frm" data-form="newPw" novalidate><label class="fld">New password<input id="au-p" type="password" autocomplete="new-password" data-inp="pwMatch"></label>' +
+    '<label class="fld">Repeat new password<input id="au-p2" type="password" autocomplete="new-password" data-inp="pwMatch"></label><p class="pwmatch" id="au-match" aria-live="polite"></p>' +
+    (ui.authErr ? '<p class="autherr" role="alert">' + esc(ui.authErr) + '</p>' : '') + '<button class="btn primary" type="submit">Save password</button></form></div></div>';
   return '<div class="authbox"><div class="brand" role="img" aria-label="Sterling">S' + $('.brand svg').outerHTML + 'erling<span class="dot"></span></div><p class="tag">Quality, scheduled.</p>' +
     '<div class="authcard"><div class="authtabs" role="group"><button type="button" data-act="authTab" data-tab="in" aria-pressed="' + inTab + '">Sign in</button><button type="button" data-act="authTab" data-tab="up" aria-pressed="' + !inTab + '">Create account</button></div>' +
     (inTab ?
       '<form class="frm" data-form="signIn" novalidate><label class="fld">Email<input id="au-e" type="email" autocomplete="username" placeholder="you@company.com"></label>' +
       '<label class="fld">Password<input id="au-p" type="password" autocomplete="current-password"></label>' +
+      '<button type="button" class="linklike muted" data-act="authForgot" style="justify-self:start;font-size:13px">Forgot password?</button>' +
       (ui.authErr ? '<p class="autherr" role="alert">' + esc(ui.authErr) + '</p>' : '') +
       '<button class="btn primary" type="submit">Sign in</button></form>' +
       (CLOUD ? '' : '<p class="authhint">Demo: use maya@demo.team (team lead) or dan@demo.team, iris@demo.team, leo@demo.team, nora@demo.team. Any password works.</p>') :
       '<form class="frm" data-form="signUp" novalidate><label class="fld">Name<input id="au-n" autocomplete="name" maxlength="40"></label>' +
       '<label class="fld">Email<input id="au-e" type="email" autocomplete="username" placeholder="you@company.com"></label>' +
-      '<label class="fld">Password<input id="au-p" type="password" autocomplete="new-password"></label>' +
+      '<label class="fld">Password<input id="au-p" type="password" autocomplete="new-password" data-inp="pwMatch"></label>' +
+      '<label class="fld">Repeat password<input id="au-p2" type="password" autocomplete="new-password" data-inp="pwMatch"></label><p class="pwmatch" id="au-match" aria-live="polite"></p>' +
       '<label class="fld">Team invite code<input id="au-c" autocomplete="off" placeholder="Ask your team lead"></label>' +
       (ui.authErr ? '<p class="autherr" role="alert">' + esc(ui.authErr) + '</p>' : '') +
       '<button class="btn primary" type="submit">Create account</button></form>' +
@@ -3247,6 +3661,7 @@ async function cloudSignUp(f){
   if (!n || !e || !pw || !c) { authErr('Fill in all fields.'); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { authErr('Enter a valid email.'); return; }
   if (pw.length < 8) { authErr('Password needs at least 8 characters.'); return; }
+  if (pw !== f.querySelector('#au-p2').value) { authErr('The two passwords do not match.'); return; }
   const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
   try { localStorage.setItem('sterling-join', JSON.stringify({email: e, name: n, code: c})); } catch(x) {}
   let r = await SB.auth.signUp({email: e, password: pw, options: {data: {name: n}}});
@@ -3286,7 +3701,36 @@ function authErr(msg){
   if (!el) { el = document.createElement('p'); el.className = 'autherr'; el.setAttribute('role', 'alert'); f.insertBefore(el, f.querySelector('button[type=submit]')); }
   el.textContent = msg;
 }
-acts.authTab = function(b){ ui.authTab = b.dataset.tab; ui.authErr = ''; showAuth(); };
+acts.authTab = function(b){ ui.authTab = b.dataset.tab; ui.authErr = ''; ui.authInfo = ''; showAuth(); };
+acts.authForgot = function(){ const e = ($('#au-e') || {}).value || ''; ui.authTab = 'reset'; ui.authErr = ''; ui.authInfo = ''; showAuth(); const i = $('#au-e'); if (i) i.value = e; };
+inp.pwMatch = function(){
+  const a = ($('#au-p') || {}).value || '', b = ($('#au-p2') || {}).value || '', m = $('#au-match'); if (!m) return;
+  if (!b) { m.textContent = ''; m.className = 'pwmatch'; return; }
+  const ok = a === b; m.textContent = ok ? 'Passwords match.' : 'Passwords do not match.'; m.className = 'pwmatch ' + (ok ? 'ok' : 'bad');
+};
+forms.resetPw = async function(f){
+  const e = f.querySelector('#au-e').value.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { authErr('Enter the email you signed up with.'); return; }
+  if (!CLOUD) { ui.authErr = ''; ui.authInfo = 'In the demo no email is sent. In the live app a reset link goes to this address.'; showAuth(); return; }
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+  const r = await SB.auth.resetPasswordForEmail(e, {redirectTo: location.origin + location.pathname});
+  btn.disabled = false;
+  if (r.error) { authErr(r.error.message); return; }
+  ui.authErr = ''; ui.authInfo = 'If this email has an account, a reset link is on its way. Check your inbox and spam folder.'; showAuth();
+  const i = $('#au-e'); if (i) i.value = e;
+};
+forms.newPw = async function(f){
+  const pw = f.querySelector('#au-p').value;
+  if (pw.length < 8) { authErr('Password needs at least 8 characters.'); return; }
+  if (pw !== f.querySelector('#au-p2').value) { authErr('The two passwords do not match.'); return; }
+  if (!CLOUD) return;
+  const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+  const r = await SB.auth.updateUser({password: pw});
+  btn.disabled = false;
+  if (r.error) { authErr(r.error.message); return; }
+  try { history.replaceState(null, '', location.pathname); } catch(e) {}
+  ui.authTab = 'in'; ui.authErr = ''; await enterCloud();
+};
 acts.signOut = function(){ if (CLOUD) return cloudSignOut(); S.signedIn = false; ui.authTab = 'in'; ui.authErr = ''; closeModal(); save(); showAuth(); };
 forms.signIn = function(f){
   if (CLOUD) return cloudSignIn(f);
@@ -3302,6 +3746,7 @@ forms.signUp = function(f){
   if (!n || !e || !pw || !c) { authErr('Fill in all fields.'); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)) { authErr('Enter a valid email.'); return; }
   if (pw.length < 8) { authErr('Password needs at least 8 characters.'); return; }
+  if (pw !== f.querySelector('#au-p2').value) { authErr('The two passwords do not match.'); return; }
   if (S.users.some(x => emailOf(x).toLowerCase() === e)) { authErr('This email already has an account.'); return; }
   if (c.toUpperCase() !== S.teamCode.toUpperCase()) { authErr('This invite code is not valid.'); return; }
   const id = 'u' + (S.users.length + 1 + Math.floor(Math.random() * 1000));
@@ -3321,6 +3766,40 @@ chg.setRole = function(el){
   save();
   if (!isLead()) { closeModal(); if (S.view === 'lead') S.view = 'today'; }
   render(); if (ui.pp === u.id) refreshPerson(u.id);
+};
+const POSITIONS = ['Junior', 'Middle', 'Senior'];
+const posOf = u => u.position != null ? u.position : (u.level || (u.role !== 'Team lead' && u.role !== 'Member' ? u.role : ''));
+function teamCard(){
+  const rows = S.users.map(function(u){
+    const lead = u.role === 'Team lead', pos = posOf(u);
+    return '<div class="trow"><span style="min-width:0"><b>' + esc(u.name) + '</b>' + (u.id === S.me ? ' <span class="muted">(you)</span>' : '') +
+      '<span class="muted" style="display:block;font-size:12.5px;overflow-wrap:anywhere">' + esc(emailOf(u)) + (pos ? ' · ' + esc(pos) : '') + '</span></span>' +
+      '<select class="chipsel" data-chg="setRole" data-id="' + u.id + '" aria-label="Role of ' + esc(u.name) + '"><option value="member"' + (lead ? '' : ' selected') + '>Member</option><option value="lead"' + (lead ? ' selected' : '') + '>Team lead</option></select></div>';
+  }).join('');
+  return '<section class="card side" id="team-card">' + scopeHead('People and roles', 'Team leads only') + rows + '</section>';
+}
+function profileHtml(u){
+  const lead = u.role === 'Team lead', pos = posOf(u);
+  const opts = ['<option value="">Not set</option>'].concat(POSITIONS.concat(pos && POSITIONS.indexOf(pos) < 0 ? [pos] : []).map(x => '<option' + (x === pos ? ' selected' : '') + '>' + esc(x) + '</option>')).join('');
+  return '<h2>Your details</h2><form data-form="profile" novalidate class="frm" style="margin-top:8px">' +
+    '<label class="fld wide">Name<input id="pf-name" value="' + esc(u.name) + '" maxlength="40" autocomplete="off"></label>' +
+    '<label class="fld wide">Position<select id="pf-pos">' + opts + '</select></label>' +
+    '<div class="fld wide"><span>Role in the app</span><strong style="display:block;margin-top:4px">' + (lead ? 'Team lead' : 'Member') + '</strong><span class="muted" style="font-size:12.5px">' + (lead ? 'You can change goals, key results and roles.' : 'A team lead can change your role in Settings, Team.') + '</span></div>' +
+    '<div class="actions wide"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>';
+}
+Object.assign(acts, {
+  openProfile: function(){ const u = me(); if (!u) return; openModal(profileHtml(u)); $('#modal').classList.add('center'); const i = $('#pf-name'); if (i) i.focus(); }
+});
+forms.profile = async function(){
+  const u = me(), name = $('#pf-name').value.trim().slice(0, 40), pos = $('#pf-pos').value;
+  if (!u) return; if (!name) { toast('Add a name first.'); return; }
+  if (CLOUD) {
+    const r = await SB.rpc('update_my_profile', {p_name: name, p_level: pos});
+    if (r.error) { toast('Could not save: ' + r.error.message); return; }
+  }
+  u.name = name; u.position = pos; u.level = pos || null;
+  if (u.role !== 'Team lead') u.role = pos || 'Member'; else u.prevRole = pos || 'Member';
+  save(); closeModal(); render(); toast('Saved.');
 };
 function refreshPerson(id){ const sh = $('#modal .rvpop'); const u = user(id); if (sh && u) sh.outerHTML = personHtml(u); }
 chg.asgAll = function(el){ document.querySelectorAll('#modal .asgcb').forEach(x => { x.checked = el.checked; }); };
