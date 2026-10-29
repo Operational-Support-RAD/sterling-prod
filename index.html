@@ -332,13 +332,13 @@ body.is-dragging{user-select:none;-webkit-user-select:none;cursor:grabbing}
 .ghead>.c1{flex:1 1 0;min-width:0}
 .ghead>.row{flex:none;align-self:center}
 .presence{display:inline-flex;align-items:center;margin-right:10px;vertical-align:middle}
-.prs{position:relative;display:inline-grid;place-items:center;width:28px;height:28px;margin-left:-6px;border-radius:50%;background:var(--soft);color:var(--ink);border:2px solid var(--bg);box-shadow:0 0 0 1.5px var(--good);font:700 .75rem var(--font-body,inherit);cursor:default}
+.prs{margin-left:12px;font-size:.8125rem;font-weight:500;white-space:nowrap;cursor:default;color:var(--muted);opacity:.75}
 .prs:first-child{margin-left:0}
-.prs.idle{opacity:.45;box-shadow:0 0 0 1.5px var(--line)}
-.prs.more{background:var(--bg);color:var(--muted);box-shadow:0 0 0 1.5px var(--line)}
-body.foil .prs{background:linear-gradient(135deg,#FFE9A8,#FFC2DD 50%,#BFE7F5);box-shadow:0 0 0 1.5px #14213D}
-body.foil .prs.idle{box-shadow:0 0 0 1.5px var(--line)}
+.prs.off{opacity:.38}
 @media (max-width:760px){.presence{display:none}}
+.blk{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;align-items:start}
+.blDoneTog{background:none;border:0;padding:0;font:inherit;font-weight:600;font-size:1.0625rem;color:var(--ink);cursor:pointer}
+.blgh{margin:14px 0 4px;font-size:.8125rem;color:var(--muted);font-weight:600}
 .envpill{background:transparent;font-family:inherit;cursor:pointer;display:inline-block;font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3.4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
 .authbox .envpill.auth{align-self:flex-start;margin-top:-14px;cursor:default}
 .envpill .envb{font-weight:500;letter-spacing:.04em;opacity:.55;margin-left:6px}
@@ -584,6 +584,9 @@ h2.dp{margin:0 0 6px;font-size:.75rem;font-weight:600;letter-spacing:.06em;text-
 .hrsval{all:unset;cursor:text;padding:1px 4px;border-radius:4px;font-variant-numeric:tabular-nums}
 .hrsval:hover{background:var(--soft)}
 .hrsval:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.pfft{display:flex;align-items:center;gap:4px;margin-top:16px;padding-top:10px;border-top:1px solid var(--line);grid-column:1/-1}
+.pfft .tplabel{width:auto;margin:0;padding:6px 10px;min-height:0}
+.pfft .pfsave{color:var(--ink);font-weight:700}
 .pfout{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);display:flex;justify-content:flex-start}
 .task .rowact{opacity:0;pointer-events:none}
 .task:hover .rowact,.task:focus-within .rowact{opacity:1;pointer-events:auto}
@@ -765,6 +768,10 @@ li.task:hover .tmeta,li.task:hover .tright,li.task:hover .chip,li.task:hover .tx
 .tphd .kact{margin-left:auto;display:flex;gap:0;flex:none}
 .tphd .kact .pencil,.tphd .kact .trashbtn{margin:0;padding:4px}
 @media (hover:none){li.task .tmeta,li.task .tright,li.task .chip,li.task .tx,li.task .tnote,.kr .brd-row>:nth-child(n+2),.kr .gsub,.ghead>.muted,.ghead .c1>.muted,.kcard .muted,.kcard .kact,.pencil,.trashbtn,.grip,.sgrip{opacity:1}}
+body.showall :is(li.task .tmeta,li.task .tright,li.task .chip,li.task .tx,li.task .tnote,.kr .brd-row>:nth-child(n+2),.kr .gsub,.ghead>.muted,.ghead .c1>.muted,.kcard .muted,.kcard .kact){opacity:1}
+body.showall :is(.pencil,.trashbtn,.grip,.sgrip){opacity:.6}
+body.showall .task .rowact{opacity:1;pointer-events:auto}
+body.showall .brow2 .trashbtn{opacity:.6;pointer-events:auto}
 @media (prefers-reduced-motion:reduce){li.task .tmeta,li.task .tright,.pencil,.trashbtn,.grip,.sgrip{transition:none}}
 .legend{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:.8125rem}
 .legend li{display:flex;align-items:center;gap:10px}
@@ -3013,6 +3020,7 @@ function render(){
   document.body.classList.toggle('foil', foilOn());
   document.body.classList.toggle('fxfirst', fxLocked());
   cardSzApply();
+  document.body.classList.toggle('showall', !!(S.settings && (S.settings.showAll || {})[S.me]));
   presRender();
   if (S.signedIn && S.settings && !fxLocked()) { try { localStorage.setItem('fx-style', foilOn() ? 'foil' : 'sterling'); } catch(e) {} }
   if (me()) $('#whoami').textContent = CLOUD ? me().name + ' (' + (isLead() ? 'Team lead' : 'Member') + ')' : 'Your details';
@@ -3370,8 +3378,58 @@ function importCard(){
 const SAMPLE_CSV = 'TYPE,CONTENT,DESCRIPTION,PRIORITY,DATE\ntask,Review old report folders,,4,\ntask,Draft how-to for scheduled runs,Start from the existing notes,1,\ntask,Tidy shared mailbox rules,,3,2026-11-03\nsection,Later,,,';
 
 function backlogList(u){
-  const missedIds = missedTasks(u).map(t => t.id);
-  return liveTasks().filter(t => t.owner === u && !t.date && !t.done && !inReview(t) && isChamp(t.catId) && !missedIds.includes(t.id));
+  return liveTasks().filter(t => t.owner === u && !t.done && !inReview(t) && isChamp(t.catId));
+}
+function blDoneList(u){ return liveTasks().filter(t => t.owner === u && t.done && isChamp(t.catId)); }
+const blDoneKey = t => t.date || t.doneAt || '';
+function blKanban(list, by){
+  const foil = foilOn(), ul = ts => ts.length ? '<ul class="tasks ' + (foil ? 'fxmini fxall' : 'big') + '" data-list="blk">' + ts.map(t => taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true})).join('') + '</ul>' : '<p class="muted" style="margin:6px 2px;font-size:.8125rem">Nothing here.</p>';
+  let cols = [];
+  if (by === 'priority') {
+    cols = [[1, 'High'], [2, 'Medium'], [3, 'Low'], [0, 'No priority']].map(c => ({h: c[1], ts: list.filter(t => (t.priority || 0) === c[0])}));
+  } else {
+    const me = S.me, map = {}, order = [];
+    const add = (k, h, t) => { if (!map[k]) { map[k] = {h: h, ts: []}; order.push(k); } if (map[k].ts.indexOf(t) < 0) map[k].ts.push(t); };
+    list.forEach(function(t){
+      if (t.fromBy || t.fromLead || (t.createdBy && t.createdBy !== me)) add('me', 'Assigned to me', t);
+      if (t.asg && t.asg.to && t.asg.state !== 'declined') add('to:' + t.asg.to, 'Sent to ' + ((user(t.asg.to) || {}).name || 'someone'), t);
+      grpReqs(t).forEach(function(r){ if (r.asg && r.asg.to && r.asg.state !== 'declined') add('to:' + r.asg.to, 'Sent to ' + ((user(r.asg.to) || {}).name || 'someone'), t); });
+    });
+    cols = order.sort((a, b) => a === 'me' ? -1 : b === 'me' ? 1 : map[a].h.localeCompare(map[b].h)).map(k => map[k]);
+    if (!cols.length) return '<p class="empty">No assigned tasks in your backlog.</p>';
+  }
+  return '<div class="blk">' + cols.map(c => '<div class="kcol"><h3>' + esc(c.h) + ' <span class="muted">' + c.ts.length + '</span></h3>' + ul(c.ts) + '</div>').join('') + '</div>';
+}
+function blDone(){
+  const d = blDoneList(S.me), open = !!ui.blDoneOpen, by = ui.blDoneBy || 'all';
+  const seg = [['all', 'All'], ['q', 'By quarter'], ['m', 'By month']].map(x => '<button type="button" data-act="blDoneBy" data-v="' + x[0] + '" aria-pressed="' + (by === x[0]) + '">' + x[1] + '</button>').join('');
+  let body = '';
+  if (open) {
+    const foil = foilOn(), ul = ts => '<ul class="tasks ' + (foil ? 'fxmini fxall' : 'big') + '" data-list="bld">' + ts.map(t => taskRow(t, {chk: true, pill: true, inline: true})).join('') + '</ul>';
+    const sorted = d.slice().sort((a, b) => blDoneKey(b).localeCompare(blDoneKey(a)));
+    if (!sorted.length) body = '<p class="empty">No completed tasks yet.</p>';
+    else if (by === 'all') body = ul(sorted);
+    else {
+      const g = {}, keys = [];
+      sorted.forEach(function(t){
+        const k = blDoneKey(t).slice(0, 7) || '0000-00', y = k.slice(0, 4), m = +k.slice(5, 7);
+        const key = by === 'q' ? y + '-Q' + (Math.floor((m - 1) / 3) + 1) : k;
+        if (!g[key]) { g[key] = []; keys.push(key); }
+        g[key].push(t);
+      });
+      const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      body = keys.map(function(k){
+        const lab = k.startsWith('0000') ? 'No date' : by === 'q' ? k.slice(5) + ' ' + k.slice(0, 4) : MN[+k.slice(5, 7) - 1] + ' ' + k.slice(0, 4);
+        return '<h3 class="blgh">' + lab + ' <span class="muted">' + g[k].length + '</span></h3>' + ul(g[k]);
+      }).join('');
+    }
+  }
+  return '<section class="card blDone" style="margin-top:28px"><div class="row between" style="flex-wrap:wrap;gap:8px"><button type="button" class="blDoneTog" data-act="blDoneTog" aria-expanded="' + open + '"><span aria-hidden="true">' + (open ? '▾' : '▸') + '</span> Completed <span class="muted">' + d.length + '</span></button>' +
+    (open ? '<span class="segb" role="group" aria-label="Group completed tasks">' + seg + '</span>' : '') + '</div>' + (open ? '<div style="margin-top:10px">' + body + '</div>' : '') + '</section>';
+}
+function blGroupBar(){
+  const g = ui.blGroup || 'none';
+  return '<span class="row" style="gap:6px"><span class="muted" style="font-size:.8125rem">Kanban</span><span class="segb" role="group" aria-label="Kanban blocks">' + [['none', 'None'], ['priority', 'Priority'], ['assigned', 'Assigned']].map(x => '<button type="button" data-act="blGroup" data-v="' + x[0] + '" aria-pressed="' + (g === x[0]) + '">' + x[1] + '</button>').join('') + '</span></span>';
 }
 const myLists = () => S.lists.filter(l => l.owner === S.me);
 const listOf = id => S.lists.find(l => l.id === id);
@@ -3446,16 +3504,17 @@ views.backlog = function(){
   const l = L.find(x => x.id === sel);
   if (l) return '<div class="datebar"><span class="row" style="gap:12px"><h2 style="margin:0">My backlog (' + mine.length + ')</h2>' + '<button type="button" class="btn exb small" data-act="quick">Add task</button>' + '</span></div>' + pills + listView(l, mine);
   const shown = sel === 'inbox' ? mine.filter(t => !t.listId) : mine;
-  const list = sortTasks(shown, ui.sortBl);
-  if (foilOn()) {
-    return '<div class="datebar"><span class="row" style="gap:12px"><h2 style="margin:0">My backlog (' + mine.length + ')</h2>' + '<button type="button" class="btn exb small" data-act="quick">Add task</button>' + '</span><span class="grow"></span>' + sortSelect('sortBl') + '</div>' + pills +
-      '<section class="card main" data-dzdate="">' + (list.length ? '<ul class="tasks fxmini fxall" data-list="bl">' + list.map(t => taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true})).join('') + '</ul>' : '<p class="empty">' + (sel === 'inbox' ? 'Nothing in the inbox.' : 'Your backlog is empty.') + '</p>') + '</section>';
-  }
-  return '<div class="datebar"><span class="row" style="gap:12px"><h2 style="margin:0">My backlog (' + mine.length + ')</h2>' + '<button type="button" class="btn exb small" data-act="quick">Add task</button>' + '</span><span class="grow"></span>' +
-    sortSelect('sortBl') + '</div>' + pills +
-    '<section class="card main" data-dzdate="">' + (list.length ? '<ul class="tasks big" data-list="bl">' + list.map(function(t){
+  const list = sortTasks(shown, ui.sortBl), foil = foilOn();
+  const grp = sel === 'all' ? (ui.blGroup || 'none') : 'none';
+  const head = '<div class="datebar"><span class="row" style="gap:12px"><h2 style="margin:0">My backlog (' + mine.length + ')</h2>' + '<button type="button" class="btn exb small" data-act="quick">Add task</button>' + '</span><span class="grow"></span>' + (sel === 'all' ? blGroupBar() + ' ' : '') + sortSelect('sortBl') + '</div>' + pills;
+  const emp = '<p class="empty">' + (sel === 'inbox' ? 'Nothing in the inbox.' : 'Your backlog is empty.') + '</p>';
+  let main;
+  if (grp !== 'none') main = '<section class="card main">' + (list.length ? blKanban(list, grp) : emp) + '</section>';
+  else if (foil) main = '<section class="card main" data-dzdate="">' + (list.length ? '<ul class="tasks fxmini fxall" data-list="bl">' + list.map(t => taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true})).join('') + '</ul>' : emp) + '</section>';
+  else main = '<section class="card main" data-dzdate="">' + (list.length ? '<ul class="tasks big" data-list="bl">' + list.map(function(t){
       return taskRow(t, {plan: true, pick: true, chk: true, pill: true, inline: true, action: sel === 'all' && t.listId && listOf(t.listId) ? '<span class="muted" style="font-size:.7812rem;white-space:nowrap">' + esc(listOf(t.listId).name) + '</span>' : ''});
-    }).join('') + '</ul>' : '<p class="empty">' + (sel === 'inbox' ? 'Nothing in the inbox.' : 'Your backlog is empty.') + '</p>') + '</section>';
+    }).join('') + '</ul>' : emp) + '</section>';
+  return head + main + blDone();
 };
 function listPick(t){
   const L = myLists(); if (!L.length) return '';
@@ -3470,6 +3529,9 @@ function nameModal(title, form, val, extra){
 }
 Object.assign(acts, {
   blList: function(b){ ui.blList = b.dataset.id; render(); },
+  blDoneTog: function(){ ui.blDoneOpen = !ui.blDoneOpen; render(); },
+  blDoneBy: function(b){ ui.blDoneBy = b.dataset.v; render(); },
+  blGroup: function(b){ ui.blGroup = b.dataset.v; render(); },
   lView: function(b){ ui.lv = b.dataset.v; render(); },
   addSecBtn: function(b){ nameModal('New section', 'addSecM', '', 'data-id="' + b.dataset.id + '"'); },
   newList: function(){ nameModal('New list', 'newList', ''); },
@@ -3557,11 +3619,17 @@ Object.assign(acts, {
       });
       toast(nk + ' key results' + (nt ? ' and ' + nt + ' tasks' : '') + ' added to ' + year + '. Existing key results were skipped.');
     } else {
+      const nk = (o, ti, d) => o + '|' + String(ti || '').trim().toLowerCase().replace(/\s+/g, ' ') + '|' + (d || '');
+      const seen = {}; S.tasks.forEach(function(x){ if (!x.deleted && !x.req) seen[nk(x.owner, x.title, x.date)] = 1; });
+      let added = 0, dup = 0;
       items.forEach(function(i){
+        const k = nk(i.owner, i.title, i.date);
+        if (seen[k]) { dup++; return; }
+        seen[k] = 1; added++;
         S.tasks.push(newTask({krId: i.krId, title: i.title, owner: i.owner, date: i.date, priority: i.priority, desc: i.desc,
           done: i.done, doneAt: i.done ? (i.date || TODAY) : null, fromLead: i.owner !== S.me, createdBy: S.me}));
       });
-      toast(items.length + ' tasks imported.');
+      toast(added + ' tasks imported.' + (dup ? ' ' + dup + ' already existed and were skipped.' : ''));
     }
     ui.imp = null; save(); render();
   }
@@ -4557,7 +4625,8 @@ function setPane(tab){
     (on ? srow('Card size', 'Changes how large cards are in every tab.', '<span class="csz"><input type="range" id="cardsz" min="0" max="2" step="1" value="' + cardSz() + '" data-chg="cardSize" aria-label="Card size" aria-valuetext="' + ['Mini', 'Standard', 'Big'][cardSz()] + '"><span><i>Mini</i><i>Standard</i><i>Big</i></span></span>') : '') + (on ? srow('Mailbox delay', 'How long a task planned after the pack is open takes to arrive.', ssel('s-fxfast', 'fxFast', [['0', '1 minute'], ['1', '5 seconds (demo)']], fast ? '1' : '0', 'Mailbox delay')) : '') +
     srow('Theme', '', '<span class="segi" role="group" aria-label="Theme">' + [['auto', SIC.mon, 'Match device'], ['light', SIC.sun, 'Light'], ['dark', SIC.moon, 'Dark']].map(o => '<button type="button" data-act="setTheme" data-v="' + o[0] + '" aria-pressed="' + (th === o[0]) + '" aria-label="' + o[2] + '" title="' + o[2] + '">' + o[1] + '</button>').join('') + '</span>') +
     srow('Week view', '', ssel('s-week', 'weekMode', [['work', 'Workdays (Mon to Fri)'], ['full', 'Full week (Mon to Sun)']], S.settings.fullWeek ? 'full' : 'work', 'Week view')) +
-    srow('Accent color', 'Default is gray.', ssel('s-acc', 'accent', ACCENTS.map(a => [a, a[0].toUpperCase() + a.slice(1)]), S.accent, 'Accent color'));
+    srow('Accent color', 'Default is gray.', ssel('s-acc', 'accent', ACCENTS.map(a => [a, a[0].toUpperCase() + a.slice(1)]), S.accent, 'Accent color')) +
+    srow('Show all controls', 'Keep task details, edit and delete buttons visible all the time. By default they appear when you hover.', '<input type="checkbox" class="tgl" data-chg="showAll"' + ((S.settings.showAll || {})[S.me] ? ' checked' : '') + ' aria-label="Show all controls">');
 }
 views.settings = function(){
   const nav = setNav(), flat = [].concat.apply([], nav.map(g => g[1]));
@@ -4743,6 +4812,7 @@ Object.assign(chg, {
   accent: function(el){ S.accent = el.value; save(); applyTheme(); },
   style: function(el){ S.settings.style = S.settings.style || {}; S.settings.style[S.me] = el.value === 'foil' ? 'foil' : 'sterling'; if (el.value !== 'foil' && ui.setTab === 'collection') ui.setTab = 'general'; save(); render(); },
   fxFast: function(el){ try { localStorage.setItem('foil-fast', el.value === '1' ? '1' : '0'); } catch(e) {} },
+  showAll: function(el){ S.settings.showAll = S.settings.showAll || {}; S.settings.showAll[S.me] = !!el.checked; save(); render(); },
   privTasks: function(el){
     S.settings.privTasks = S.settings.privTasks || {};
     S.settings.privTasks[S.me] = !!el.checked;
@@ -5800,43 +5870,45 @@ function introCheck(){
 }
 
 /* Who is online (Supabase Realtime presence in the cloud version, sample people in the demo) */
-const pres = {ch: null, state: {}, last: Date.now(), idle: false, timer: null};
-function presKey(){ return CLOUD ? pres.state : null; }
+const pres = {ch: null, state: {}, gone: {}, seen: {}, timer: null};
+const PRES_KEEP = 5 * 60000;
 function presList(){
   if (!S || !S.signedIn || !me()) return [];
-  const out = [];
-  if (CLOUD) { Object.keys(pres.state).forEach(function(id){ if (id === S.me) return; const u = user(id); if (!u) return; const m = (pres.state[id] || [])[0] || {}; out.push({u: u, idle: !!m.idle}); }); }
-  else { S.users.filter(u => u.id !== S.me).slice(0, 4).forEach(function(u, i){ out.push({u: u, idle: i === 2}); }); }
-  return out.sort((a, b) => (a.idle - b.idle) || a.u.name.localeCompare(b.u.name));
+  const out = [], now = Date.now();
+  if (CLOUD) {
+    Object.keys(pres.state).forEach(function(id){ if (id === S.me) return; const u = user(id); if (u) out.push({u: u, on: true}); });
+    Object.keys(pres.gone).forEach(function(id){ if (pres.state[id]) return; if (now - pres.gone[id] > PRES_KEEP) { delete pres.gone[id]; return; } const u = user(id); if (u) out.push({u: u, on: false}); });
+  } else { S.users.filter(u => u.id !== S.me).slice(0, 3).forEach(function(u, i){ out.push({u: u, on: i < 2}); }); }
+  return out.sort((a, b) => (b.on - a.on) || a.u.name.localeCompare(b.u.name));
 }
 function presRender(){
   const el = document.getElementById('presence'); if (!el) return;
   const L = presList();
-  if (!L.length) { el.hidden = true; el.innerHTML = ''; return; }
-  const sig = L.map(x => x.u.id + (x.idle ? 'i' : 'a')).join(',');
+  if (!L.length) { el.hidden = true; el.innerHTML = ''; el.dataset.sig = ''; return; }
+  const sig = L.map(x => x.u.id + x.u.name + (x.on ? 'a' : 'g')).join(',');
   if (el.dataset.sig === sig) return;
   el.dataset.sig = sig; el.hidden = false;
-  const max = 5;
-  el.innerHTML = L.slice(0, max).map(x => '<span class="prs' + (x.idle ? ' idle' : '') + '" title="' + esc(x.u.name) + (x.idle ? ' (away)' : ' (in the app)') + '" aria-label="' + esc(x.u.name) + (x.idle ? ', away' : ', in the app') + '">' + esc(String(x.u.name).charAt(0).toUpperCase()) + '</span>').join('') +
+  const max = 3;
+  el.innerHTML = L.slice(0, max).map(x => '<span class="prs ' + (x.on ? 'on' : 'off') + '" title="' + esc(x.u.name) + (x.on ? ' is in the app' : ' left the app') + '">' + esc(x.u.name) + '</span>').join('') +
     (L.length > max ? '<span class="prs more" title="' + esc(L.slice(max).map(x => x.u.name).join(', ')) + '">+' + (L.length - max) + '</span>' : '');
 }
 function presStart(){
   if (!CLOUD || !SB || !cloud.team || pres.ch) return;
   try {
     pres.ch = SB.channel('presence:' + cloud.team.id, {config: {presence: {key: cloud.uid}}});
-    pres.ch.on('presence', {event: 'sync'}, function(){ pres.state = pres.ch.presenceState(); presRender(); })
-      .subscribe(function(st){ if (st === 'SUBSCRIBED') pres.ch.track({idle: false, at: Date.now()}); });
+    pres.ch.on('presence', {event: 'sync'}, function(){
+      const next = pres.ch.presenceState();
+      Object.keys(pres.state).forEach(function(id){ if (!next[id]) pres.gone[id] = Date.now(); });
+      Object.keys(next).forEach(function(id){ delete pres.gone[id]; });
+      pres.state = next; presRender();
+    }).subscribe(function(st){ if (st === 'SUBSCRIBED') pres.ch.track({at: Date.now()}); });
   } catch(e) { pres.ch = null; return; }
-  const bump = function(){ pres.last = Date.now(); if (pres.idle) presSetIdle(false); };
-  ['pointerdown', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach(ev => document.addEventListener(ev, bump, {passive: true, capture: true}));
-  document.addEventListener('visibilitychange', function(){ if (document.hidden) presSetIdle(true); else bump(); });
-  pres.timer = setInterval(function(){ if (!pres.idle && (document.hidden || Date.now() - pres.last > 5 * 60000)) presSetIdle(true); }, 20000);
+  pres.timer = setInterval(presRender, 15000);
 }
-function presSetIdle(v){ pres.idle = v; try { if (pres.ch) pres.ch.track({idle: v, at: Date.now()}); } catch(e) {} }
 function presStop(){
   clearInterval(pres.timer); pres.timer = null;
   try { if (pres.ch) { pres.ch.untrack(); SB.removeChannel(pres.ch); } } catch(e) {}
-  pres.ch = null; pres.state = {}; presRender();
+  pres.ch = null; pres.state = {}; pres.gone = {}; presRender();
 }
 
 /* Foil reveal */
@@ -6264,8 +6336,7 @@ function profileHtml(u){
   return '<h2>Your details</h2><form data-form="profile" novalidate class="frm" style="margin-top:8px">' +
     '<label class="fld wide">Name<input id="pf-name" value="' + esc(u.name) + '" maxlength="40" autocomplete="off"></label>' +
     '<div class="fld wide"><span>Role in the app</span><strong style="display:block;margin-top:4px">' + (lead ? 'Team lead' : 'Member') + '</strong><span class="muted" style="font-size:.7812rem">' + (lead ? 'You can change goals, key results and roles.' : 'A team lead can change your role in Settings, Team.') + '</span></div>' +
-    '<div class="actions wide"><button type="button" class="btn" data-act="closeModal">Cancel</button><button type="submit" class="btn primary">Save</button></div></form>' +
-    '<div class="pfout"><button type="button" class="btn small quiet" data-act="signOut">Sign out</button></div>';
+    '<div class="pfft wide"><button type="button" class="tplabel tpnb" data-act="signOut">Sign out</button><span class="grow"></span><button type="button" class="tplabel tpnb" data-act="closeModal">Cancel</button><button type="submit" class="tplabel tpnb pfsave">Save</button></div></form>';
 }
 Object.assign(acts, {
   openProfile: function(){ const u = me(); if (!u) return; openModal(profileHtml(u)); $('#modal').classList.add('center'); const i = $('#pf-name'); if (i) i.focus(); }
